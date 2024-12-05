@@ -7,7 +7,7 @@ public class GridController : MonoBehaviour
     public GameObject cellQuadObj;
 
     //The size of one cell
-    public float cellSize = 0.4f;
+    public float cellSize = 0.2f;
     //How many cells do we have in one row?
     public int gridSize = 20;
 

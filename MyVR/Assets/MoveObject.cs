@@ -4,7 +4,7 @@ using UnityEngine.XR.Interaction.Toolkit;
 
 public class MoveAndSnapObject : MonoBehaviour
 {
-    public float gridSize = 0.4f; // Größe der Zellen im Grid
+    public float gridSize = 0.2f; // Größe der Zellen im Grid
 
     private void SnapToGrid()
     {
@@ -19,39 +19,7 @@ public class MoveAndSnapObject : MonoBehaviour
         Quaternion currentRotation = transform.rotation;
         Vector3 eulerRotation = currentRotation.eulerAngles;
 
-        /*
-        if (eulerRotation.x >= -360 && eulerRotation.x < -135)
-        {
-            transform.rotation = Quaternion.Euler(-360, -eulerRotation.y, -eulerRotation.z);
-        }
-        else if (eulerRotation.x >= -225 && eulerRotation.x < -135)
-        {
-            transform.rotation = Quaternion.Euler(-180, -eulerRotation.y, -eulerRotation.z);
-        }
-        else if (eulerRotation.x >= -135 && eulerRotation.x < -45)
-        {
-            transform.rotation = Quaternion.Euler(-90, -eulerRotation.y, -eulerRotation.z);
-        }
-        else if (eulerRotation.x >= -45 && eulerRotation.x < 45)
-        {
-            transform.rotation = Quaternion.Euler(0, -eulerRotation.y, -eulerRotation.z);
-        } else if (eulerRotation.x >= 45 && eulerRotation.x < 135)
-        {
-            transform.rotation = Quaternion.Euler(90, -eulerRotation.y, -eulerRotation.z);
-        }
-        else if (eulerRotation.x >= 135 && eulerRotation.x < 225)
-        {
-            transform.rotation = Quaternion.Euler(180, -eulerRotation.y, -eulerRotation.z);
-        }
-        else if (eulerRotation.x >= 225 && eulerRotation.x < 315)
-        {
-            transform.rotation = Quaternion.Euler(180, -eulerRotation.y, -eulerRotation.z);
-        }
-        else if (eulerRotation.x >= 315 && eulerRotation.x <= 360)
-        {
-            transform.rotation = Quaternion.Euler(360, -eulerRotation.y, -eulerRotation.z);
-        }*/
-
+        // Rotation auf bestimmte Winkel beschränken
         float snappedX = Mathf.Round(eulerRotation.x / 90) * 90;
         float snappedY = Mathf.Round(eulerRotation.y / 90) * 90;
         float snappedZ = Mathf.Round(eulerRotation.z / 90) * 90;

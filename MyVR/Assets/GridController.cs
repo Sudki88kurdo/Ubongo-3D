@@ -218,4 +218,36 @@ public class GridController : MonoBehaviour
 
         return gridPos;
     }*/
+
+    private void SnapToGrid(GameObject target)
+    {
+        Debug.Log("SnapToGrid wurde aufgerufen!");
+        // Runden der Position auf das nächste Grid
+        float snapX = Mathf.Round(target.transform.position.x / cellSize) * cellSize;
+        float snapY = Mathf.Round(target.transform.position.y / cellSize) * cellSize;
+        float snapZ = Mathf.Round(target.transform.position.z / cellSize) * cellSize;
+
+        // Setze die Position des Objekts auf das Grid
+        target.transform.position = new Vector3(snapX, snapY, snapZ);
+        Quaternion currentRotation = target.transform.rotation;
+        Vector3 eulerRotation = currentRotation.eulerAngles;
+
+        // Rotation auf bestimmte Winkel beschränken
+        float snappedX = Mathf.Round(eulerRotation.x / 90) * 90;
+        float snappedY = Mathf.Round(eulerRotation.y / 90) * 90;
+        float snappedZ = Mathf.Round(eulerRotation.z / 90) * 90;
+
+        target.transform.rotation = Quaternion.Euler(snappedX, snappedY, snappedZ);
+
+
+        // Ausgabe für Debugging
+        Debug.Log($"Snapping to: {target.transform.position}");
+        Debug.Log($"Current rotation: {currentRotation.eulerAngles}");
+    }
+
+    // Diese Methode wird aufgerufen, wenn das Objekt losgelassen wird
+    public void OnRelease(GameObject target)
+    {
+        SnapToGrid(target); 
+    }
 }

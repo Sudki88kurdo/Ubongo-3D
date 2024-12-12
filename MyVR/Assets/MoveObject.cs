@@ -32,9 +32,24 @@ public class MoveAndSnapObject : MonoBehaviour
         Debug.Log($"Current rotation: {currentRotation.eulerAngles}");
     }
 
+    public MoveAndSnapObject snapManager;
+
+    /*
+    private void Start()
+    {
+        if (snapManager != null && targetObject != null)
+        {
+            snapManager.SnapObjectToGrid(targetObject);
+        }
+        else
+        {
+            Debug.LogWarning("SnapManager oder Zielobjekt fehlt!");
+        }
+    }*/
+
     // Diese Methode wird aufgerufen, wenn das Objekt losgelassen wird
     public void OnRelease()
     {
-        SnapToGrid(); // Raste das Objekt auf das Grid
+      //  SnapToGrid(); // Raste das Objekt auf das Grid
     }
 }

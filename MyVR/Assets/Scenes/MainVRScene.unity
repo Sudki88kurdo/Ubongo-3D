@@ -175,7 +175,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 1.041667, y: 1.041667, z: 1.041667}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!23 &13585561
 MeshRenderer:
@@ -255,7 +255,7 @@ Transform:
   m_GameObject: {fileID: 21738480}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.008, z: 1.014}
+  m_LocalPosition: {x: 0, y: 0, z: 1}
   m_LocalScale: {x: 0.96000004, y: 0.96000004, z: 0.96000004}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -280,7 +280,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 1.041667, y: 1.041667, z: 1.041667}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!23 &21738483
 MeshRenderer:
@@ -798,7 +798,6 @@ GameObject:
   - component: {fileID: 82027523}
   - component: {fileID: 82027522}
   - component: {fileID: 82027521}
-  - component: {fileID: 82027520}
   m_Layer: 0
   m_Name: 'GameObjectBaustein_-_Big '
   m_TagString: Untagged
@@ -806,19 +805,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &82027520
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 82027519}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 335cb1cf605d11e4992ac79b30bee463, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  gridSize: 0.2
 --- !u!114 &82027521
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -885,13 +871,13 @@ MonoBehaviour:
   m_SelectExited:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 82027520}
-        m_TargetAssemblyTypeName: MoveAndSnapObject, Assembly-CSharp
+      - m_Target: {fileID: 2050807277}
+        m_TargetAssemblyTypeName: GridController, Assembly-CSharp
         m_MethodName: OnRelease
-        m_Mode: 1
+        m_Mode: 2
         m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_ObjectArgument: {fileID: 82027519}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.GameObject, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -1031,7 +1017,7 @@ Transform:
   m_GameObject: {fileID: 82027519}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0.7071068, w: 0.7071068}
-  m_LocalPosition: {x: -9.079, y: 1, z: -0.617}
+  m_LocalPosition: {x: -12, y: 1, z: -1}
   m_LocalScale: {x: 0.2, y: 0.2, z: 0.2}
   m_ConstrainProportionsScale: 1
   m_Children:
@@ -1126,7 +1112,6 @@ GameObject:
   - component: {fileID: 130815276}
   - component: {fileID: 130815275}
   - component: {fileID: 130815274}
-  - component: {fileID: 130815273}
   m_Layer: 0
   m_Name: GameObjectBaustein_T_Big (1)
   m_TagString: Untagged
@@ -1134,19 +1119,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &130815273
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 130815272}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 335cb1cf605d11e4992ac79b30bee463, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  gridSize: 0.2
 --- !u!114 &130815274
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1213,13 +1185,13 @@ MonoBehaviour:
   m_SelectExited:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 130815273}
-        m_TargetAssemblyTypeName: MoveAndSnapObject, Assembly-CSharp
+      - m_Target: {fileID: 2050807277}
+        m_TargetAssemblyTypeName: GridController, Assembly-CSharp
         m_MethodName: OnRelease
-        m_Mode: 1
+        m_Mode: 2
         m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_ObjectArgument: {fileID: 130815272}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.GameObject, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -1359,7 +1331,7 @@ Transform:
   m_GameObject: {fileID: 130815272}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0.7071068, w: 0.7071068}
-  m_LocalPosition: {x: -8.72, y: 1, z: -0.451}
+  m_LocalPosition: {x: -12, y: 1, z: 0}
   m_LocalScale: {x: 0.2, y: 0.2, z: 0.2}
   m_ConstrainProportionsScale: 1
   m_Children:
@@ -1422,7 +1394,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 1.041667, y: 1.041667, z: 1.041667}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!23 &143442903
 MeshRenderer:
@@ -1777,7 +1749,7 @@ Transform:
   m_GameObject: {fileID: 223074915}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: -2.01, z: 0}
+  m_LocalPosition: {x: 0, y: -2, z: 0}
   m_LocalScale: {x: 0.96000004, y: 0.96000004, z: 0.96000004}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -1802,7 +1774,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 1.041667, y: 1.041667, z: 1.041667}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!23 &223074918
 MeshRenderer:
@@ -2173,7 +2145,6 @@ GameObject:
   - component: {fileID: 256067111}
   - component: {fileID: 256067110}
   - component: {fileID: 256067109}
-  - component: {fileID: 256067108}
   m_Layer: 0
   m_Name: 'GameObjectBaustein_L_Big '
   m_TagString: Untagged
@@ -2181,19 +2152,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &256067108
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 256067107}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 335cb1cf605d11e4992ac79b30bee463, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  gridSize: 0.2
 --- !u!114 &256067109
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2260,13 +2218,13 @@ MonoBehaviour:
   m_SelectExited:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 256067108}
-        m_TargetAssemblyTypeName: MoveAndSnapObject, Assembly-CSharp
+      - m_Target: {fileID: 2050807277}
+        m_TargetAssemblyTypeName: GridController, Assembly-CSharp
         m_MethodName: OnRelease
-        m_Mode: 1
+        m_Mode: 2
         m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_ObjectArgument: {fileID: 256067107}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.GameObject, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -3977,7 +3935,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 1.041667, y: 1.041667, z: 1.041667}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!23 &314045912
 MeshRenderer:
@@ -4041,7 +3999,6 @@ GameObject:
   - component: {fileID: 325045122}
   - component: {fileID: 325045121}
   - component: {fileID: 325045120}
-  - component: {fileID: 325045119}
   m_Layer: 0
   m_Name: GameObjectBaustein_T_Big
   m_TagString: Untagged
@@ -4049,19 +4006,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &325045119
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 325045118}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 335cb1cf605d11e4992ac79b30bee463, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  gridSize: 0.2
 --- !u!114 &325045120
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4128,13 +4072,13 @@ MonoBehaviour:
   m_SelectExited:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 325045119}
-        m_TargetAssemblyTypeName: MoveAndSnapObject, Assembly-CSharp
+      - m_Target: {fileID: 2050807277}
+        m_TargetAssemblyTypeName: GridController, Assembly-CSharp
         m_MethodName: OnRelease
-        m_Mode: 1
+        m_Mode: 2
         m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_ObjectArgument: {fileID: 325045118}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.GameObject, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -4274,7 +4218,7 @@ Transform:
   m_GameObject: {fileID: 325045118}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0.7071068, w: 0.7071068}
-  m_LocalPosition: {x: -8.72, y: 1, z: 0.146}
+  m_LocalPosition: {x: -9, y: 1, z: 0}
   m_LocalScale: {x: 0.2, y: 0.2, z: 0.2}
   m_ConstrainProportionsScale: 1
   m_Children:
@@ -4514,7 +4458,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 1.041667, y: 1.041667, z: 1.041667}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!23 &469783989
 MeshRenderer:
@@ -4905,7 +4849,7 @@ Transform:
   m_GameObject: {fileID: 487814988}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: -2.01, z: 0}
+  m_LocalPosition: {x: 0, y: -2, z: 0}
   m_LocalScale: {x: 0.96000004, y: 0.96000004, z: 0.96000004}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -4930,7 +4874,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 1.041667, y: 1.041667, z: 1.041667}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!23 &487814991
 MeshRenderer:
@@ -5035,7 +4979,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 1.041667, y: 1.041667, z: 1.041667}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!23 &493616135
 MeshRenderer:
@@ -5555,7 +5499,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 1.041667, y: 1.041667, z: 1.041667}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!23 &634528606
 MeshRenderer:
@@ -5989,7 +5933,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 1.041667, y: 1.041667, z: 1.041667}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!23 &695162705
 MeshRenderer:
@@ -7320,7 +7264,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 1.041667, y: 1.041667, z: 1.041667}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!23 &845429992
 MeshRenderer:
@@ -7797,7 +7741,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 1.041667, y: 1.041667, z: 1.041667}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!23 &885753077
 MeshRenderer:
@@ -8011,7 +7955,7 @@ Transform:
   m_GameObject: {fileID: 906672484}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: -2.01, z: -0}
+  m_LocalPosition: {x: 0, y: -2, z: -0}
   m_LocalScale: {x: 0.96000004, y: 0.96000004, z: 0.96000004}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -8036,7 +7980,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 1.041667, y: 1.041667, z: 1.041667}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!23 &906672487
 MeshRenderer:
@@ -8088,51 +8032,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 906672484}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!1 &906872038
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 906872040}
-  - component: {fileID: 906872039}
-  m_Layer: 0
-  m_Name: MoveToGrid
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &906872039
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 906872038}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 335cb1cf605d11e4992ac79b30bee463, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  gridSize: 0.4
---- !u!4 &906872040
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 906872038}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 3.34, y: 0, z: 10}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &914660728
 GameObject:
   m_ObjectHideFlags: 0
@@ -8291,7 +8190,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 1.041667, y: 1.041667, z: 1.041667}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!23 &918767142
 MeshRenderer:
@@ -8471,7 +8370,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 1.041667, y: 1.041667, z: 1.041667}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!23 &957475786
 MeshRenderer:
@@ -8976,7 +8875,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 1.041667, y: 1.041667, z: 1.041667}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!23 &1090869879
 MeshRenderer:
@@ -9187,7 +9086,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 1.041667, y: 1.041667, z: 1.041667}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!23 &1142768132
 MeshRenderer:
@@ -9341,7 +9240,6 @@ GameObject:
   - component: {fileID: 1181774700}
   - component: {fileID: 1181774699}
   - component: {fileID: 1181774698}
-  - component: {fileID: 1181774697}
   m_Layer: 0
   m_Name: 'GameObjectBaustein_+_Big '
   m_TagString: Untagged
@@ -9349,19 +9247,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1181774697
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1181774696}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 335cb1cf605d11e4992ac79b30bee463, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  gridSize: 0.2
 --- !u!114 &1181774698
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9428,13 +9313,13 @@ MonoBehaviour:
   m_SelectExited:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1181774697}
-        m_TargetAssemblyTypeName: MoveAndSnapObject, Assembly-CSharp
+      - m_Target: {fileID: 2050807277}
+        m_TargetAssemblyTypeName: GridController, Assembly-CSharp
         m_MethodName: OnRelease
-        m_Mode: 1
+        m_Mode: 2
         m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_ObjectArgument: {fileID: 1181774696}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.GameObject, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -9574,7 +9459,7 @@ Transform:
   m_GameObject: {fileID: 1181774696}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0.7071068, w: 0.7071068}
-  m_LocalPosition: {x: -10.01, y: 1, z: 0.14}
+  m_LocalPosition: {x: -10, y: 1, z: 0}
   m_LocalScale: {x: 0.2, y: 0.2, z: 0.2}
   m_ConstrainProportionsScale: 1
   m_Children:
@@ -9824,7 +9709,7 @@ Transform:
   m_GameObject: {fileID: 1236143931}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: -2.01, z: 1}
+  m_LocalPosition: {x: 0, y: -2, z: 1}
   m_LocalScale: {x: 0.96000004, y: 0.96000004, z: 0.96000004}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -9849,7 +9734,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 1.041667, y: 1.041667, z: 1.041667}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!23 &1236143934
 MeshRenderer:
@@ -9954,7 +9839,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 1.041667, y: 1.041667, z: 1.041667}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!23 &1237052120
 MeshRenderer:
@@ -10585,7 +10470,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 1.041667, y: 1.041667, z: 1.041667}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!23 &1297485640
 MeshRenderer:
@@ -12878,7 +12763,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 1.041667, y: 1.041667, z: 1.041667}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!23 &1480434707
 MeshRenderer:
@@ -13367,7 +13252,6 @@ GameObject:
   - component: {fileID: 1561314498}
   - component: {fileID: 1561314497}
   - component: {fileID: 1561314496}
-  - component: {fileID: 1561314495}
   m_Layer: 0
   m_Name: 'GameObjectBaustein_#_Big '
   m_TagString: Untagged
@@ -13375,19 +13259,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1561314495
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1561314494}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 335cb1cf605d11e4992ac79b30bee463, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  gridSize: 0.2
 --- !u!114 &1561314496
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13454,13 +13325,13 @@ MonoBehaviour:
   m_SelectExited:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1561314495}
-        m_TargetAssemblyTypeName: MoveAndSnapObject, Assembly-CSharp
+      - m_Target: {fileID: 2050807277}
+        m_TargetAssemblyTypeName: GridController, Assembly-CSharp
         m_MethodName: OnRelease
-        m_Mode: 1
+        m_Mode: 2
         m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_ObjectArgument: {fileID: 1561314494}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.GameObject, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -13600,7 +13471,7 @@ Transform:
   m_GameObject: {fileID: 1561314494}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0.7071068, w: 0.7071068}
-  m_LocalPosition: {x: -11.28, y: 1, z: -0.244}
+  m_LocalPosition: {x: -11, y: 1, z: 0}
   m_LocalScale: {x: 0.2, y: 0.2, z: 0.2}
   m_ConstrainProportionsScale: 1
   m_Children:
@@ -13663,7 +13534,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 1.041667, y: 1.041667, z: 1.041667}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!23 &1563923246
 MeshRenderer:
@@ -13768,7 +13639,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 1.041667, y: 1.041667, z: 1.041667}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!23 &1612899474
 MeshRenderer:
@@ -13873,7 +13744,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 1.041667, y: 1.041667, z: 1.041667}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!23 &1653360818
 MeshRenderer:
@@ -14620,7 +14491,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 1.041667, y: 1.041667, z: 1.041667}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!23 &1688813018
 MeshRenderer:
@@ -14700,7 +14571,7 @@ Transform:
   m_GameObject: {fileID: 1733128194}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: -2.01, z: 0}
+  m_LocalPosition: {x: 0, y: -2, z: 0}
   m_LocalScale: {x: 0.96000004, y: 0.96000004, z: 0.96000004}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -14725,7 +14596,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 1.041667, y: 1.041667, z: 1.041667}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!23 &1733128197
 MeshRenderer:
@@ -14789,7 +14660,6 @@ GameObject:
   - component: {fileID: 1734142246}
   - component: {fileID: 1734142245}
   - component: {fileID: 1734142244}
-  - component: {fileID: 1734142248}
   m_Layer: 0
   m_Name: GameObjectBaustein_Z_Big
   m_TagString: Untagged
@@ -14863,13 +14733,13 @@ MonoBehaviour:
   m_SelectExited:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1734142248}
-        m_TargetAssemblyTypeName: MoveAndSnapObject, Assembly-CSharp
+      - m_Target: {fileID: 2050807277}
+        m_TargetAssemblyTypeName: GridController, Assembly-CSharp
         m_MethodName: OnRelease
-        m_Mode: 1
+        m_Mode: 2
         m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_ObjectArgument: {fileID: 1734142242}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.GameObject, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -15009,7 +14879,7 @@ Transform:
   m_GameObject: {fileID: 1734142242}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0.7071068, w: 0.7071068}
-  m_LocalPosition: {x: -8.72, y: 1, z: -1}
+  m_LocalPosition: {x: -9, y: 1, z: -1}
   m_LocalScale: {x: 0.2, y: 0.2, z: 0.2}
   m_ConstrainProportionsScale: 1
   m_Children:
@@ -15019,19 +14889,6 @@ Transform:
   - {fileID: 469783987}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 90}
---- !u!114 &1734142248
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1734142242}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 335cb1cf605d11e4992ac79b30bee463, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  gridSize: 0.2
 --- !u!1 &1740400187
 GameObject:
   m_ObjectHideFlags: 0
@@ -15589,7 +15446,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 1.041667, y: 1.041667, z: 1.041667}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!23 &1789841987
 MeshRenderer:
@@ -15653,7 +15510,6 @@ GameObject:
   - component: {fileID: 1791737021}
   - component: {fileID: 1791737020}
   - component: {fileID: 1791737019}
-  - component: {fileID: 1791737018}
   m_Layer: 0
   m_Name: 'GameObjectBaustein_I_Big '
   m_TagString: Untagged
@@ -15661,19 +15517,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1791737018
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1791737017}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 335cb1cf605d11e4992ac79b30bee463, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  gridSize: 0.2
 --- !u!114 &1791737019
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15740,13 +15583,13 @@ MonoBehaviour:
   m_SelectExited:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1791737018}
-        m_TargetAssemblyTypeName: MoveAndSnapObject, Assembly-CSharp
+      - m_Target: {fileID: 2050807277}
+        m_TargetAssemblyTypeName: GridController, Assembly-CSharp
         m_MethodName: OnRelease
-        m_Mode: 1
+        m_Mode: 2
         m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_ObjectArgument: {fileID: 1791737017}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.GameObject, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -15886,7 +15729,7 @@ Transform:
   m_GameObject: {fileID: 1791737017}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0.7071068, w: 0.7071068}
-  m_LocalPosition: {x: -11.28, y: 1, z: -1.04}
+  m_LocalPosition: {x: -11, y: 1, z: -1}
   m_LocalScale: {x: 0.2, y: 0.2, z: 0.2}
   m_ConstrainProportionsScale: 1
   m_Children:
@@ -17623,7 +17466,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 1.041667, y: 1.041667, z: 1.041667}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!23 &1998230509
 MeshRenderer:
@@ -17761,7 +17604,7 @@ GameObject:
   - component: {fileID: 2050807278}
   - component: {fileID: 2050807277}
   m_Layer: 0
-  m_Name: GridQuad
+  m_Name: Grid
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -17852,7 +17695,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 1.041667, y: 1.041667, z: 1.041667}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!23 &2055643903
 MeshRenderer:
@@ -18091,7 +17934,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 1.041667, y: 1.041667, z: 1.041667}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!23 &2077958646
 MeshRenderer:
@@ -18206,7 +18049,7 @@ Transform:
   m_GameObject: {fileID: 2126162934}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.002, z: 1.014}
+  m_LocalPosition: {x: 0, y: 1, z: 1}
   m_LocalScale: {x: 0.96000004, y: 0.96000004, z: 0.96000004}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -18231,7 +18074,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 1.041667, y: 1.041667, z: 1.041667}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!23 &2126162937
 MeshRenderer:
@@ -18307,9 +18150,8 @@ SceneRoots:
   - {fileID: 1246774782}
   - {fileID: 677329146}
   - {fileID: 876587569}
-  - {fileID: 906872040}
-  - {fileID: 2050807278}
   - {fileID: 1734142247}
+  - {fileID: 2050807278}
   - {fileID: 325045123}
   - {fileID: 130815277}
   - {fileID: 1181774701}

@@ -1,19 +1,36 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using static UnityEngine.GraphicsBuffer;
 
 public class GridController : MonoBehaviour
 {
-    //The quad used to display the cells
+    //Größe eines Grids
+    public float cellSize = 0.2f;
+
+    //Quads um Grid anzuzeigen
     public GameObject cellQuadObj;
     public GameObject gameQuadObj;
 
-    //The size of one cell
-    public float cellSize = 0.2f;
-    //How many cells do we have in one row?
-    //public int gridSize = 20;
+    // Erweiterung: Bei jedem Level werden Bausteine erzeugt
+    public GameObject blockZ;
+    public GameObject blockT;
+    public GameObject blockT2;
+    public GameObject blockPlus;
+    public GameObject blockL;
+    public GameObject blockI;
+    public GameObject blockMinus;
+    public GameObject blockRhomb;
+
+    private Dictionary<int, List<GameObject>> levelBlocks = new Dictionary<int, List<GameObject>>();
+    private List<GameObject> activeBlocks = new List<GameObject>();
 
 
+    private Dictionary<int, int[,]> levelGrids = new Dictionary<int, int[,]>();
+
+
+
+    // Erweiterung: Automatische Erstellung von Grids anhand der Flächen der Bausteine
     //Game grid / Level
     int[,] grid1 =
     {
@@ -89,32 +106,180 @@ public class GridController : MonoBehaviour
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
     };
 
+    int[,] testGrid =
+    {
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+        {0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+        {0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+        {0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
+    };
+
+
     //To make it easier to access the script from other scripts
     public static GridController current;
 
     private List<GameObject> cellQuads; // Dynamische Liste
     private List<GameObject> gameQuads; // Dynamische Liste
 
+    private List<GameObject> blocks;
 
-    public int[,] grid;
+    private GameObject generalTarget;
+
+    private float previousY = -1;
+    private float noMovementThreshold = 0.01f; 
+    private float stationaryTime = 0f;
+    private float stationaryTimeLimit = 0.5f;
+
+
     void Start()
     {
         cellQuads = new List<GameObject>();
         gameQuads = new List<GameObject>();
-        grid = grid1;
         current = this;
-        newGrid();
+
+        blocks = new List<GameObject>();
+        blocks.Add(blockZ);
+        blocks.Add(blockT);
+        blocks.Add(blockT2);
+        blocks.Add(blockPlus);
+        blocks.Add(blockL);
+        blocks.Add(blockI);
+        blocks.Add(blockMinus);
+        blocks.Add(blockRhomb);
+
+
+        levelBlocks[1] = new List<GameObject> { blockZ, blockT, blockT2, blockPlus, blockL, blockI, blockMinus, blockRhomb };
+        levelBlocks[2] = new List<GameObject> { blockZ, blockT, blockT2, blockPlus, blockL, blockI, blockMinus, blockRhomb };
+        levelBlocks[3] = new List<GameObject> { blockZ, blockT, blockT2, blockPlus, blockL, blockI, blockMinus, blockRhomb };
+        levelBlocks[4] = new List<GameObject> { blockMinus, blockRhomb };
+
+        levelGrids[1] = grid1;
+        levelGrids[2] = grid2;
+        levelGrids[3] = grid3;
+        levelGrids[4] = testGrid;
+
+
+        LoadLevel(1);
 
     }
 
-    private void newGrid()
+    void Update()
     {
-        Vector3 gridCenter = transform.position;
+        TestMovement();
+    }
 
+    private void TestMovement()
+    {
+        if (generalTarget == null) return;
+
+        if(previousY < 0)
+        {
+            previousY = generalTarget.transform.position.y;
+            return;
+        }
+        float deltaY = Mathf.Abs(generalTarget.transform.position.y - previousY);
+        if (deltaY < noMovementThreshold)
+        {
+            stationaryTime += Time.deltaTime;
+
+            // Wenn Baustein nicht mehr fällt
+            if (stationaryTime >= stationaryTimeLimit)
+            {
+                Debug.Log($"Target hat sich nicht in y-Richtung bewegt. Aktuelle Position: {generalTarget.transform.position}");
+                stationaryTime = 0;
+                generalTarget = null;
+                previousY = -1;
+                TestSolution();
+                return;
+            } 
+        }
+        else
+        {
+            stationaryTime = 0;
+                
+        }
+        previousY = generalTarget.transform.position.y;
+    }
+
+    private void TestSolution()
+    {
+        //ToDo Teste ob die Lösung des Spielers richtig ist
+    }
+
+
+
+    private void LoadLevel(int level)
+    {
+        NewBlocks(level);
+        NewGrid(level);
+    }
+
+    private void NewBlocks(int level)
+    {
+        // Blocks vom alten Level löschen
+        foreach (GameObject bock in activeBlocks)
+        {
+            Destroy(bock);
+        }
+        activeBlocks.Clear();
+
+
+        // Blocks für neues Level erstellen
+        List<GameObject> blocksForLevel = levelBlocks[level];
+        Vector3 startPosition = new Vector3(-10, 1, -1);
+        float offsetZ = 1f;
+
+        foreach (GameObject block in blocksForLevel)
+        {
+            GameObject blockForLevel = Instantiate(block, startPosition, Quaternion.identity);
+            blockForLevel.SetActive(true);
+            blockForLevel.transform.rotation = Quaternion.Euler(0f, 0f, 90f);
+            activeBlocks.Add(blockForLevel);
+
+            startPosition.z += offsetZ;
+        }
+
+    }
+
+    private void NewGrid(int level)
+    {
+        // Grid-Elemente von altem Level löschen
+        foreach (GameObject cellQuad in cellQuads)
+        {
+            Destroy(cellQuad);
+        }
+        cellQuads.Clear();
+
+        foreach (GameObject gameQuad in gameQuads)
+        {
+            Destroy(gameQuad);
+        }
+        gameQuads.Clear();
+
+
+        // Grid-Elemente für neues Level erstellen
+        Vector3 gridCenter = transform.position;
         Renderer originalRenderer = cellQuadObj.GetComponent<Renderer>();
         originalRenderer.enabled = true;
         Renderer gameRenderer = gameQuadObj.GetComponent<Renderer>();
         gameRenderer.enabled = true;
+        int[,] grid = levelGrids[level];
 
         //Display the grid cells with quads
         for (int x = 0; x < grid.GetLength(0); x++)
@@ -148,23 +313,29 @@ public class GridController : MonoBehaviour
     }
 
 
-    public void setLevel(int index)
+    public void SetLevel(int index)
     {
         if (index == 0)
         {
             Debug.Log("index 0");
-            grid = grid1;
+            LoadLevel(1);
         }
         else if (index == 1)
         {
             Debug.Log("index 1");
-            grid = grid2;
+            LoadLevel(2);
 
         }
         else if (index == 2)
         {
             Debug.Log("index 2");
-            grid = grid3;
+            LoadLevel(3);
+
+        }
+        else if (index == 3)
+        {
+            Debug.Log("Test");
+            LoadLevel(4);
 
         }
         else
@@ -172,19 +343,9 @@ public class GridController : MonoBehaviour
             Debug.LogError("Ungültiger Index: " + index);
         }
 
-        foreach (GameObject cellQuad in cellQuads)
-        {
-            Destroy(cellQuad);
-        }
-        cellQuads.Clear();
+        
 
-        foreach (GameObject gameQuad in gameQuads)
-        {
-            Destroy(gameQuad);
-        }
-        gameQuads.Clear();
-
-        newGrid();
+        
     }
 
 
@@ -219,6 +380,9 @@ public class GridController : MonoBehaviour
         return gridPos;
     }*/
 
+
+
+
     private void SnapToGrid(GameObject target)
     {
         Debug.Log("SnapToGrid wurde aufgerufen!");
@@ -243,6 +407,9 @@ public class GridController : MonoBehaviour
         // Ausgabe für Debugging
         Debug.Log($"Snapping to: {target.transform.position}");
         Debug.Log($"Current rotation: {currentRotation.eulerAngles}");
+
+        generalTarget = target;
+
     }
 
     // Diese Methode wird aufgerufen, wenn das Objekt losgelassen wird

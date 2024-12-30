@@ -15,7 +15,6 @@ public class GridController : MonoBehaviour
     // Erweiterung: Bei jedem Level werden Bausteine erzeugt
     public GameObject blockZ;
     public GameObject blockT;
-    public GameObject blockT2;
     public GameObject blockPlus;
     public GameObject blockL;
     public GameObject blockI;
@@ -27,6 +26,8 @@ public class GridController : MonoBehaviour
 
 
     private Dictionary<int, int[,]> levelGrids = new Dictionary<int, int[,]>();
+
+    private int level = 1;
 
 
 
@@ -43,9 +44,9 @@ public class GridController : MonoBehaviour
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
         {0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
         {0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0 },
-        {0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 },
-        {0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0 },
-        {0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0 },
+        {0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+        {0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+        {0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
@@ -70,8 +71,8 @@ public class GridController : MonoBehaviour
         {0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
         {0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
         {0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-        {0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0 },
-        {0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 },
+        {0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+        {0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
@@ -89,8 +90,8 @@ public class GridController : MonoBehaviour
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-        {0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 },
-        {0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 },
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 },
+        {0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 },
         {0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 },
         {0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 },
         {0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 },
@@ -108,6 +109,9 @@ public class GridController : MonoBehaviour
 
     int[,] testGrid =
     {
+        {1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+        {1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+        {1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
@@ -122,9 +126,6 @@ public class GridController : MonoBehaviour
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-        {0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-        {0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-        {0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
@@ -156,7 +157,6 @@ public class GridController : MonoBehaviour
         blocks = new List<GameObject>();
         blocks.Add(blockZ);
         blocks.Add(blockT);
-        blocks.Add(blockT2);
         blocks.Add(blockPlus);
         blocks.Add(blockL);
         blocks.Add(blockI);
@@ -164,9 +164,9 @@ public class GridController : MonoBehaviour
         blocks.Add(blockRhomb);
 
 
-        levelBlocks[1] = new List<GameObject> { blockZ, blockT, blockT2, blockPlus, blockL, blockI, blockMinus, blockRhomb };
-        levelBlocks[2] = new List<GameObject> { blockZ, blockT, blockT2, blockPlus, blockL, blockI, blockMinus, blockRhomb };
-        levelBlocks[3] = new List<GameObject> { blockZ, blockT, blockT2, blockPlus, blockL, blockI, blockMinus, blockRhomb };
+        levelBlocks[1] = new List<GameObject> { blockZ, blockT, blockPlus, blockL, blockI, blockMinus, blockRhomb };
+        levelBlocks[2] = new List<GameObject> { blockZ, blockT, blockPlus, blockL, blockI, blockMinus, blockRhomb };
+        levelBlocks[3] = new List<GameObject> { blockZ, blockT, blockPlus, blockL, blockI, blockMinus, blockRhomb };
         levelBlocks[4] = new List<GameObject> { blockMinus, blockRhomb };
 
         levelGrids[1] = grid1;
@@ -177,11 +177,14 @@ public class GridController : MonoBehaviour
 
         LoadLevel(1);
 
+        TestSolution(level);
+
     }
 
     void Update()
     {
         TestMovement();
+        TestSolution(level);
     }
 
     private void TestMovement()
@@ -201,11 +204,11 @@ public class GridController : MonoBehaviour
             // Wenn Baustein nicht mehr fällt
             if (stationaryTime >= stationaryTimeLimit)
             {
-                Debug.Log($"Target hat sich nicht in y-Richtung bewegt. Aktuelle Position: {generalTarget.transform.position}");
+                Debug.Log($"{generalTarget} y: {generalTarget.transform.position.y}");
                 stationaryTime = 0;
                 generalTarget = null;
                 previousY = -1;
-                TestSolution();
+                
                 return;
             } 
         }
@@ -217,15 +220,97 @@ public class GridController : MonoBehaviour
         previousY = generalTarget.transform.position.y;
     }
 
-    private void TestSolution()
+    private void TestSolution(int level)
     {
+        int[,] grid = levelGrids[level];
         //ToDo Teste ob die Lösung des Spielers richtig ist
+        int[,] solutionGrid = new int[grid.GetLength(0), grid.GetLength(1)];
+
+        /*
+        Debug.Log($"grid {grid.ToString()} ");
+        MatrixInConsole(grid);
+        Debug.Log($"sol {solutionGrid.ToString()} ");
+        MatrixInConsole(solutionGrid);
+
+        Debug.Log($"cell {cellQuadObj.transform.position}");
+
+        Debug.Log($"game {gameQuadObj.transform.position} ");
+
+        */
+
+        foreach(GameObject block in activeBlocks)
+        {
+
+            foreach (Transform child in block.transform)
+            {
+                Vector3Int position = TransformToMatrixPoints(child.transform.position);
+
+                if (position.x >= 0 && position.x < grid.GetLength(0) && position.z >= 0 && position.z < grid.GetLength(1))
+                {
+                    solutionGrid[position.x, position.z] = 1;
+                }
+            }
+  
+        }
+        MatrixInConsole(solutionGrid);
+        bool equal = MatrixEqual(grid, solutionGrid);
+        Debug.Log(equal);
+
+
+
+
+    }
+
+    bool MatrixEqual(int[,] matrix1, int[,] matrix2)
+    {
+ 
+        if (matrix1.GetLength(0) != matrix2.GetLength(0) || matrix1.GetLength(1) != matrix2.GetLength(1))
+        {
+            return false;
+        }
+
+        for (int i = 0; i < matrix1.GetLength(0); i++) 
+        {
+            for (int j = 0; j < matrix1.GetLength(1); j++) 
+            {
+                if (matrix1[i, j] != matrix2[i, j])  
+                {
+                    
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 
 
+    private Vector3Int TransformToMatrixPoints(Vector3 vector)
+    {
+        vector -= cellQuadObj.transform.position;
+        vector *= 1 / cellSize;
+        
+        return Vector3Int.RoundToInt(vector);
+    }
+
+
+    private void MatrixInConsole(int[,] matrix)
+    {
+        String matrixString = "";
+        for (int i = 0; i < matrix.GetLength(0); i++) 
+        {
+            for (int j = 0; j < matrix.GetLength(1); j++) 
+            {
+                matrixString += matrix[i, j] + " "; 
+            }
+            matrixString += "  ";
+        }
+        Debug.Log(matrixString);
+    }
 
     private void LoadLevel(int level)
     {
+        this.level = level;
         NewBlocks(level);
         NewGrid(level);
     }
@@ -233,9 +318,9 @@ public class GridController : MonoBehaviour
     private void NewBlocks(int level)
     {
         // Blocks vom alten Level löschen
-        foreach (GameObject bock in activeBlocks)
+        foreach (GameObject block in activeBlocks)
         {
-            Destroy(bock);
+            Destroy(block);
         }
         activeBlocks.Clear();
 
@@ -317,24 +402,24 @@ public class GridController : MonoBehaviour
     {
         if (index == 0)
         {
-            Debug.Log("index 0");
+           // Debug.Log("index 0");
             LoadLevel(1);
         }
         else if (index == 1)
         {
-            Debug.Log("index 1");
+           // Debug.Log("index 1");
             LoadLevel(2);
 
         }
         else if (index == 2)
         {
-            Debug.Log("index 2");
+           // Debug.Log("index 2");
             LoadLevel(3);
 
         }
         else if (index == 3)
         {
-            Debug.Log("Test");
+           // Debug.Log("Test");
             LoadLevel(4);
 
         }
@@ -385,7 +470,7 @@ public class GridController : MonoBehaviour
 
     private void SnapToGrid(GameObject target)
     {
-        Debug.Log("SnapToGrid wurde aufgerufen!");
+        // Debug.Log("SnapToGrid wurde aufgerufen!");
         // Runden der Position auf das nächste Grid
         float snapX = Mathf.Round(target.transform.position.x / cellSize) * cellSize;
         float snapY = Mathf.Round(target.transform.position.y / cellSize) * cellSize;
@@ -405,8 +490,8 @@ public class GridController : MonoBehaviour
 
 
         // Ausgabe für Debugging
-        Debug.Log($"Snapping to: {target.transform.position}");
-        Debug.Log($"Current rotation: {currentRotation.eulerAngles}");
+        // Debug.Log($"Snapping to: {target.transform.position}");
+        // Debug.Log($"Current rotation: {currentRotation.eulerAngles}");
 
         generalTarget = target;
 

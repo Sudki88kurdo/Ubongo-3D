@@ -476,6 +476,7 @@ public class GridController : MonoBehaviour
 
                     if (grid[y, x, z] == 1)
                     {
+                        // TODO Code ersetzen durch Erstellen der halbdurchsichtigen 3D-Grid-Blöcke
                         GameObject newGameQuad = Instantiate(gameQuadObj, centerPosVolume + gridCenter, Quaternion.identity, transform);
                         newGameQuad.transform.rotation = Quaternion.Euler(90f, 0f, 0f);
                         newGameQuad.SetActive(true);

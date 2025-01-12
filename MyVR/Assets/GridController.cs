@@ -6,7 +6,7 @@ using static UnityEngine.GraphicsBuffer;
 
 public class GridController : MonoBehaviour
 {
-    //Größe eines Grids
+    //Grï¿½ï¿½e eines Grids
     public float cellSize = 0.2f;
 
     //Quads um Grid anzuzeigen
@@ -14,7 +14,7 @@ public class GridController : MonoBehaviour
     public GameObject gameQuadObj;
 
     // Erweiterung: Bei jedem Level werden Bausteine erzeugt
-    public GameObject blockZ;
+    public GameObject blockMuster5;
     public GameObject blockT;
     public GameObject blockPlus;
     public GameObject blockL;
@@ -47,7 +47,7 @@ public class GridController : MonoBehaviour
 
 
 
-    // Erweiterung: Automatische Erstellung von Grids anhand der Flächen der Bausteine
+    // Erweiterung: Automatische Erstellung von Grids anhand der Flï¿½chen der Bausteine
     //Game grid / Level
     int[,,] grid1 =
     {
@@ -251,7 +251,7 @@ public class GridController : MonoBehaviour
         winState = WinState.Playing;
 
         blocks = new List<GameObject>();
-        blocks.Add(blockZ);
+        blocks.Add(blockMuster5);
         blocks.Add(blockT);
         blocks.Add(blockPlus);
         blocks.Add(blockL);
@@ -260,11 +260,11 @@ public class GridController : MonoBehaviour
         blocks.Add(blockRhomb);
 
 
-        levelBlocks[1] = new List<GameObject> { blockZ, blockT, blockPlus, blockL, blockI, blockMinus, blockRhomb };
-        levelBlocks[2] = new List<GameObject> { blockZ, blockT, blockPlus, blockL, blockI, blockMinus, blockRhomb };
-        levelBlocks[3] = new List<GameObject> { blockZ, blockT, blockPlus, blockL, blockI, blockMinus, blockRhomb };
-        levelBlocks[4] = new List<GameObject> { blockMinus, blockRhomb };
-        levelBlocks[5] = new List<GameObject> { blockMinus, blockRhomb, blockT };
+        levelBlocks[1] = new List<GameObject> {  blockT, blockPlus, blockL, blockI, blockMinus, blockRhomb };
+        levelBlocks[2] = new List<GameObject> {  blockT, blockPlus, blockL, blockI, blockMinus, blockRhomb };
+        levelBlocks[3] = new List<GameObject> {  blockT, blockPlus, blockL, blockI, blockMinus, blockRhomb };
+        levelBlocks[4] = new List<GameObject> {  blockMinus, blockRhomb };
+        levelBlocks[5] = new List<GameObject> {  blockMinus, blockRhomb, blockT, blockMuster5, };
 
         levelGrids[1] = grid1;
         levelGrids[2] = grid2;
@@ -317,7 +317,7 @@ public class GridController : MonoBehaviour
         {
             stationaryTime += Time.deltaTime;
 
-            // Wenn Baustein nicht mehr fällt
+            // Wenn Baustein nicht mehr fï¿½llt
             if (stationaryTime >= stationaryTimeLimit)
             {
                 Debug.Log($"{generalTarget} y: {generalTarget.transform.position.y}");
@@ -339,7 +339,7 @@ public class GridController : MonoBehaviour
     private Boolean TestSolution(int level)
     {
         int[,,] grid = levelGrids[level];
-        //ToDo Teste ob die Lösung des Spielers richtig ist
+        //ToDo Teste ob die Lï¿½sung des Spielers richtig ist
         int[,,] solutionGrid = new int[grid.GetLength(0), grid.GetLength(1), grid.GetLength(2)];
 
 
@@ -414,7 +414,7 @@ public class GridController : MonoBehaviour
 
     private void NewBlocks(int level)
     {
-        // Blocks vom alten Level löschen
+        // Blocks vom alten Level lï¿½schen
         foreach (GameObject block in activeBlocks)
         {
             Destroy(block);
@@ -422,7 +422,7 @@ public class GridController : MonoBehaviour
         activeBlocks.Clear();
 
 
-        // Blocks für neues Level erstellen
+        // Blocks fï¿½r neues Level erstellen
         List<GameObject> blocksForLevel = levelBlocks[level];
         Vector3 startPosition = new Vector3(-10, 1, -1);
         float offsetZ = 1f;
@@ -441,7 +441,7 @@ public class GridController : MonoBehaviour
 
     private void NewGrid(int level)
     {
-        // Grid-Elemente von altem Level löschen
+        // Grid-Elemente von altem Level lï¿½schen
         foreach (GameObject cellQuad in cellQuads)
         {
             Destroy(cellQuad);
@@ -455,7 +455,7 @@ public class GridController : MonoBehaviour
         gameQuads.Clear();
 
 
-        // Grid-Elemente für neues Level erstellen
+        // Grid-Elemente fï¿½r neues Level erstellen
         Vector3 gridCenter = transform.position;
         Renderer originalRenderer = cellQuadObj.GetComponent<Renderer>();
         originalRenderer.enabled = true;
@@ -476,7 +476,7 @@ public class GridController : MonoBehaviour
 
                     if (grid[y, x, z] == 1)
                     {
-                        // TODO Code ersetzen durch Erstellen der halbdurchsichtigen 3D-Grid-Blöcke
+                        // TODO Code ersetzen durch Erstellen der halbdurchsichtigen 3D-Grid-Blï¿½cke
                         GameObject newGameQuad = Instantiate(gameQuadObj, centerPosVolume + gridCenter, Quaternion.identity, transform);
                         newGameQuad.transform.rotation = Quaternion.Euler(90f, 0f, 0f);
                         newGameQuad.SetActive(true);
@@ -520,7 +520,7 @@ public class GridController : MonoBehaviour
         }
         else
         {
-            Debug.LogError("Ungültiger Index: " + index);
+            Debug.LogError("Ungï¿½ltiger Index: " + index);
         }
 
         
@@ -566,7 +566,7 @@ public class GridController : MonoBehaviour
     private void SnapToGrid(GameObject target)
     {
         // Debug.Log("SnapToGrid wurde aufgerufen!");
-        // Runden der Position auf das nächste Grid
+        // Runden der Position auf das nï¿½chste Grid
         float snapX = Mathf.Round(target.transform.position.x / cellSize) * cellSize;
         float snapY = Mathf.Round(target.transform.position.y / cellSize) * cellSize;
         float snapZ = Mathf.Round(target.transform.position.z / cellSize) * cellSize;
@@ -576,7 +576,7 @@ public class GridController : MonoBehaviour
         Quaternion currentRotation = target.transform.rotation;
         Vector3 eulerRotation = currentRotation.eulerAngles;
 
-        // Rotation auf bestimmte Winkel beschränken
+        // Rotation auf bestimmte Winkel beschrï¿½nken
         float snappedX = Mathf.Round(eulerRotation.x / 90) * 90;
         float snappedY = Mathf.Round(eulerRotation.y / 90) * 90;
         float snappedZ = Mathf.Round(eulerRotation.z / 90) * 90;
@@ -584,7 +584,7 @@ public class GridController : MonoBehaviour
         target.transform.rotation = Quaternion.Euler(snappedX, snappedY, snappedZ);
 
 
-        // Ausgabe für Debugging
+        // Ausgabe fï¿½r Debugging
         // Debug.Log($"Snapping to: {target.transform.position}");
         // Debug.Log($"Current rotation: {currentRotation.eulerAngles}");
 

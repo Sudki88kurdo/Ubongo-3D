@@ -12,15 +12,21 @@ public class GridController : MonoBehaviour
     //Quads um Grid anzuzeigen
     public GameObject cellQuadObj;
     public GameObject gameQuadObj;
+    public GameObject gameCubeObj;
+    public GameObject gameCubeColorObj;
 
     // Erweiterung: Bei jedem Level werden Bausteine erzeugt
-    public GameObject blockMuster5;
+    public GameObject blockPattern5;
     public GameObject blockT;
     public GameObject blockPlus;
     public GameObject blockL;
     public GameObject blockI;
     public GameObject blockMinus;
     public GameObject blockRhomb;
+    public GameObject blockV;
+    public GameObject blockComplex1;
+    public GameObject blockComplex2;
+    public GameObject blockComplex3;
 
     public GameObject gameMenu;
     public GameObject winWindow;
@@ -226,12 +232,46 @@ public class GridController : MonoBehaviour
         }
     };
 
+    int[,,] grid3D1 =
+    {
+        {
+            {0, 1, 1, 0, 0},
+            {0, 1, 1, 1, 0},
+            {0, 1, 1, 1, 0},
+            {0, 0, 1, 1, 1}
+        },
+        {
+            {0, 0, 0, 0, 0},
+            {0, 1, 1, 1, 0},
+            {0, 1, 1, 0, 0},
+            {0, 0, 0, 0, 1}
+        }
+    };
+
+    int[,,] grid3D2 =
+{
+        {
+            {1, 1, 1, 1, 1},
+            {0, 1, 1, 1, 0},
+            {0, 0, 1, 0, 0},
+            {0, 0, 0, 0, 0}
+        },
+        {
+            {0, 1, 0, 1, 1},
+            {0, 1, 0, 1, 0},
+            {0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0}
+        }
+    };
+
 
     //To make it easier to access the script from other scripts
     public static GridController current;
 
     private List<GameObject> cellQuads; // Dynamische Liste
     private List<GameObject> gameQuads; // Dynamische Liste
+    private List<GameObject> gameCubes;
+    private List<GameObject> gameCubesColor;
 
     private List<GameObject> blocks;
 
@@ -247,30 +287,40 @@ public class GridController : MonoBehaviour
     {
         cellQuads = new List<GameObject>();
         gameQuads = new List<GameObject>();
+        gameCubes = new List<GameObject>();
+        gameCubesColor = new List<GameObject>();
         current = this;
         winState = WinState.Playing;
 
         blocks = new List<GameObject>();
-        blocks.Add(blockMuster5);
+        blocks.Add(blockPattern5);
         blocks.Add(blockT);
         blocks.Add(blockPlus);
         blocks.Add(blockL);
         blocks.Add(blockI);
         blocks.Add(blockMinus);
         blocks.Add(blockRhomb);
+        blocks.Add(blockV);
+        blocks.Add(blockComplex1);
+        blocks.Add(blockComplex2);
+        blocks.Add(blockComplex3);
 
 
         levelBlocks[1] = new List<GameObject> {  blockT, blockPlus, blockL, blockI, blockMinus, blockRhomb };
         levelBlocks[2] = new List<GameObject> {  blockT, blockPlus, blockL, blockI, blockMinus, blockRhomb };
         levelBlocks[3] = new List<GameObject> {  blockT, blockPlus, blockL, blockI, blockMinus, blockRhomb };
         levelBlocks[4] = new List<GameObject> {  blockMinus, blockRhomb };
-        levelBlocks[5] = new List<GameObject> {  blockMinus, blockRhomb, blockT, blockMuster5, };
+        levelBlocks[5] = new List<GameObject> {  blockMinus, blockRhomb, blockT, blockPattern5 };
+        levelBlocks[6] = new List<GameObject> {  blockV, blockComplex1, blockComplex2, blockComplex3 };
+        levelBlocks[7] = new List<GameObject> {  blockPlus, blockMinus, blockV, blockComplex1 };
 
         levelGrids[1] = grid1;
         levelGrids[2] = grid2;
         levelGrids[3] = grid3;
         levelGrids[4] = testGrid;
         levelGrids[5] = testGrid3D;
+        levelGrids[6] = grid3D1;
+        levelGrids[7] = grid3D2;
 
 
         LoadLevel(1);
@@ -454,6 +504,18 @@ public class GridController : MonoBehaviour
         }
         gameQuads.Clear();
 
+        foreach (GameObject gameCube in gameCubes)
+        {
+            Destroy(gameCube);
+        }
+        gameCubes.Clear();
+
+        foreach (GameObject gameCube in gameCubesColor)
+        {
+            Destroy(gameCube);
+        }
+        gameCubesColor.Clear();
+
 
         // Grid-Elemente f�r neues Level erstellen
         Vector3 gridCenter = transform.position;
@@ -461,6 +523,9 @@ public class GridController : MonoBehaviour
         originalRenderer.enabled = true;
         Renderer gameRenderer = gameQuadObj.GetComponent<Renderer>();
         gameRenderer.enabled = true;
+        Renderer cubeRenderer = gameCubeObj.GetComponent<Renderer>();
+        cubeRenderer.enabled = true;
+        Renderer cubeColorRenderer = gameCubeColorObj.GetComponent<Renderer>();
         int[,,] grid = levelGrids[level];
 
         // Grid Elemente erstellen und anzeigen
@@ -470,18 +535,7 @@ public class GridController : MonoBehaviour
             {
                 for (int z = 0; z < grid.GetLength(2); z++)
                 {
-
-                    Vector3 centerPosVolume = new Vector3(x * cellSize, y * cellSize, z * cellSize);
-
-
-                    if (grid[y, x, z] == 1)
-                    {
-                        // TODO Code ersetzen durch Erstellen der halbdurchsichtigen 3D-Grid-Bl�cke
-                        GameObject newGameQuad = Instantiate(gameQuadObj, centerPosVolume + gridCenter, Quaternion.identity, transform);
-                        newGameQuad.transform.rotation = Quaternion.Euler(90f, 0f, 0f);
-                        newGameQuad.SetActive(true);
-                        gameQuads.Add(newGameQuad);
-                    }
+                    
 
 
                     Vector3 centerPosSurface = new Vector3(x * cellSize, 0, z * cellSize);
@@ -493,7 +547,7 @@ public class GridController : MonoBehaviour
                         newCellQuad.SetActive(true);
                         cellQuads.Add(newCellQuad);
                     }
-                    else
+                    else if (grid[0, x, z] == 1)
                     {
                         GameObject newGameQuad = Instantiate(gameQuadObj, centerPosSurface + gridCenter, Quaternion.identity, transform);
                         newGameQuad.transform.rotation = Quaternion.Euler(90f, 0f, 0f);
@@ -502,6 +556,20 @@ public class GridController : MonoBehaviour
                     }
 
 
+
+                    Vector3 centerPosVolume = new Vector3(x * cellSize, y * cellSize + cellSize/2, z * cellSize);
+                    Vector3 centerPosVolumeColor = new Vector3(x * cellSize, y * cellSize + cellSize / 2, z * cellSize + cellSize * (grid.GetLength(2)+1));
+
+                    if (grid[y, x, z] == 1)
+                    {
+                        GameObject newGameCube = Instantiate(gameCubeObj, centerPosVolume + gridCenter, Quaternion.identity, transform);
+                        newGameCube.SetActive(true);
+                        gameCubes.Add(newGameCube);
+
+                        GameObject newGameCubeColor = Instantiate(gameCubeColorObj, centerPosVolumeColor + gridCenter, Quaternion.identity, transform);
+                        newGameCubeColor.SetActive(true);
+                        gameCubesColor.Add(newGameCubeColor);
+                    }
                 }
             }
         }
@@ -509,6 +577,9 @@ public class GridController : MonoBehaviour
 
         originalRenderer.enabled = false;
         gameRenderer.enabled = false;
+        cubeRenderer.enabled = false;
+        cubeColorRenderer.enabled = false;
+
     }
 
 

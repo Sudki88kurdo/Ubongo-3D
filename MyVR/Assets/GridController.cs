@@ -12,7 +12,6 @@ public class GridController : MonoBehaviour
     //Quads um Grid anzuzeigen
     public GameObject cellQuadObj;
     public GameObject gameQuadObj;
-    public GameObject gameCubeObj;
     public GameObject gameCubeColorObj;
 
     // Erweiterung: Bei jedem Level werden Bausteine erzeugt
@@ -270,7 +269,6 @@ public class GridController : MonoBehaviour
 
     private List<GameObject> cellQuads; // Dynamische Liste
     private List<GameObject> gameQuads; // Dynamische Liste
-    private List<GameObject> gameCubes;
     private List<GameObject> gameCubesColor;
 
     private List<GameObject> blocks;
@@ -287,7 +285,6 @@ public class GridController : MonoBehaviour
     {
         cellQuads = new List<GameObject>();
         gameQuads = new List<GameObject>();
-        gameCubes = new List<GameObject>();
         gameCubesColor = new List<GameObject>();
         current = this;
         winState = WinState.Playing;
@@ -504,12 +501,6 @@ public class GridController : MonoBehaviour
         }
         gameQuads.Clear();
 
-        foreach (GameObject gameCube in gameCubes)
-        {
-            Destroy(gameCube);
-        }
-        gameCubes.Clear();
-
         foreach (GameObject gameCube in gameCubesColor)
         {
             Destroy(gameCube);
@@ -523,8 +514,6 @@ public class GridController : MonoBehaviour
         originalRenderer.enabled = true;
         Renderer gameRenderer = gameQuadObj.GetComponent<Renderer>();
         gameRenderer.enabled = true;
-        Renderer cubeRenderer = gameCubeObj.GetComponent<Renderer>();
-        cubeRenderer.enabled = true;
         Renderer cubeColorRenderer = gameCubeColorObj.GetComponent<Renderer>();
         int[,,] grid = levelGrids[level];
 
@@ -556,16 +545,10 @@ public class GridController : MonoBehaviour
                     }
 
 
-
-                    Vector3 centerPosVolume = new Vector3(x * cellSize, y * cellSize + cellSize/2, z * cellSize);
                     Vector3 centerPosVolumeColor = new Vector3(x * cellSize, y * cellSize + cellSize / 2, z * cellSize + cellSize * (grid.GetLength(2)+1));
 
                     if (grid[y, x, z] == 1)
                     {
-                        GameObject newGameCube = Instantiate(gameCubeObj, centerPosVolume + gridCenter, Quaternion.identity, transform);
-                        newGameCube.SetActive(true);
-                        gameCubes.Add(newGameCube);
-
                         GameObject newGameCubeColor = Instantiate(gameCubeColorObj, centerPosVolumeColor + gridCenter, Quaternion.identity, transform);
                         newGameCubeColor.SetActive(true);
                         gameCubesColor.Add(newGameCubeColor);
@@ -577,7 +560,6 @@ public class GridController : MonoBehaviour
 
         originalRenderer.enabled = false;
         gameRenderer.enabled = false;
-        cubeRenderer.enabled = false;
         cubeColorRenderer.enabled = false;
 
     }

@@ -1,8 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.ProBuilder.Shapes;
+using UnityEngine.XR.Interaction.Toolkit;
 using static UnityEngine.GraphicsBuffer;
+
 
 public class GridController : MonoBehaviour
 {
@@ -35,11 +40,14 @@ public class GridController : MonoBehaviour
 
     private Dictionary<int, List<GameObject>> levelBlocks = new Dictionary<int, List<GameObject>>();
     private List<GameObject> activeBlocks = new List<GameObject>();
+    private List<GameObject> activeBlocksEnemy = new List<GameObject>();
 
+    private Vector3 enemyGridStart = new Vector3(1, 0, 7);
 
     private Dictionary<int, int[,,]> levelGrids = new Dictionary<int, int[,,]>();
 
     private int level = 1;
+
 
     public enum WinState
     {
@@ -212,7 +220,7 @@ public class GridController : MonoBehaviour
             {0, 0, 0, 0, 0},
             {0, 0, 0, 0, 0},
             {0, 0, 0, 0, 0}
-        }    
+        }
     };
 
     int[,,] testGrid3D =
@@ -275,11 +283,12 @@ public class GridController : MonoBehaviour
 
     private GameObject generalTarget;
 
+    /*
     private float previousY = -1;
     private float noMovementThreshold = 0.01f; 
     private float stationaryTime = 0f;
     private float stationaryTimeLimit = 0.5f;
-
+    */
 
     void Start()
     {
@@ -303,13 +312,13 @@ public class GridController : MonoBehaviour
         blocks.Add(blockComplex3);
 
 
-        levelBlocks[1] = new List<GameObject> {  blockT, blockPlus, blockL, blockI, blockMinus, blockRhomb };
-        levelBlocks[2] = new List<GameObject> {  blockT, blockPlus, blockL, blockI, blockMinus, blockRhomb };
-        levelBlocks[3] = new List<GameObject> {  blockT, blockPlus, blockL, blockI, blockMinus, blockRhomb };
-        levelBlocks[4] = new List<GameObject> {  blockMinus, blockRhomb };
-        levelBlocks[5] = new List<GameObject> {  blockMinus, blockRhomb, blockT, blockPattern5 };
-        levelBlocks[6] = new List<GameObject> {  blockV, blockComplex1, blockComplex2, blockComplex3 };
-        levelBlocks[7] = new List<GameObject> {  blockPlus, blockMinus, blockV, blockComplex1 };
+        levelBlocks[1] = new List<GameObject> { blockT, blockPlus, blockL, blockI, blockMinus, blockRhomb };
+        levelBlocks[2] = new List<GameObject> { blockT, blockPlus, blockL, blockI, blockMinus, blockRhomb };
+        levelBlocks[3] = new List<GameObject> { blockT, blockPlus, blockL, blockI, blockMinus, blockRhomb };
+        levelBlocks[4] = new List<GameObject> { blockMinus, blockRhomb };
+        levelBlocks[5] = new List<GameObject> { blockMinus, blockRhomb, blockT };
+        levelBlocks[6] = new List<GameObject> { blockV, blockComplex1, blockComplex2, blockComplex3 };
+        levelBlocks[7] = new List<GameObject> { blockPlus, blockMinus, blockV, blockComplex1 };
 
         levelGrids[1] = grid1;
         levelGrids[2] = grid2;
@@ -328,9 +337,9 @@ public class GridController : MonoBehaviour
 
     void Update()
     {
-        TestMovement();
+        //TestMovement();
         Boolean win = TestSolution(level);
-        if(win && winState == WinState.Playing)
+        if (win && winState == WinState.Playing)
         {
             winState = WinState.WinWindow;
             // show win window and game menu
@@ -347,9 +356,10 @@ public class GridController : MonoBehaviour
         {
             winState = WinState.Playing;
         }
-        
+
     }
 
+    /*
     private void TestMovement()
     {
         if (generalTarget == null) return;
@@ -381,7 +391,7 @@ public class GridController : MonoBehaviour
                 
         }
         previousY = generalTarget.transform.position.y;
-    }
+    }*/
 
     private Boolean TestSolution(int level)
     {
@@ -390,7 +400,7 @@ public class GridController : MonoBehaviour
         int[,,] solutionGrid = new int[grid.GetLength(0), grid.GetLength(1), grid.GetLength(2)];
 
 
-        foreach(GameObject block in activeBlocks)
+        foreach (GameObject block in activeBlocks)
         {
 
             foreach (Transform child in block.transform)
@@ -401,13 +411,13 @@ public class GridController : MonoBehaviour
                 if (position.y >= 0 && position.y < grid.GetLength(0) && position.x >= 0 && position.x < grid.GetLength(1) && position.z >= 0 && position.z < grid.GetLength(2))
                 {
                     solutionGrid[position.y, position.x, position.z] = 1;
-                    Debug.Log(position);
+                    //Debug.Log(position);
                 }
             }
-  
+
         }
         bool equal = MatrixEqual(grid, solutionGrid);
-        Debug.Log(equal);
+        //Debug.Log(equal);
         return equal;
 
 
@@ -417,23 +427,23 @@ public class GridController : MonoBehaviour
 
     bool MatrixEqual(int[,,] matrix1, int[,,] matrix2)
     {
- 
+
         if (matrix1.GetLength(0) != matrix2.GetLength(0) || matrix1.GetLength(1) != matrix2.GetLength(1))
         {
             return false;
         }
 
-        for (int i = 0; i < matrix1.GetLength(0); i++) 
+        for (int i = 0; i < matrix1.GetLength(0); i++)
         {
-            for (int j = 0; j < matrix1.GetLength(1); j++) 
+            for (int j = 0; j < matrix1.GetLength(1); j++)
             {
-                for(int k = 0; k < matrix2.GetLength(2); k++)
+                for (int k = 0; k < matrix2.GetLength(2); k++)
                 {
                     if (matrix1[i, j, k] != matrix2[i, j, k])
                     {
                         return false;
                     }
-                } 
+                }
             }
         }
 
@@ -446,7 +456,7 @@ public class GridController : MonoBehaviour
     {
         vector -= cellQuadObj.transform.position;
         vector *= 1 / cellSize;
-        
+
         return Vector3Int.RoundToInt(vector);
     }
 
@@ -455,11 +465,655 @@ public class GridController : MonoBehaviour
     private void LoadLevel(int level)
     {
         this.level = level;
-        NewBlocks(level);
-        NewGrid(level);
+        
+
+        //SolveLevel(4);
+
+        //SolveLevel(5);
+        
+        if(level >= 4)
+        {
+            NewBlocks(level, true);
+            NewGrid(level, true);
+            SolveLevel(level);
+        } else
+        {
+            NewBlocks(level, false);
+            NewGrid(level, false);
+        }
+        
     }
 
-    private void NewBlocks(int level)
+
+    private void SolveLevel(int level)
+    {
+        int[,,] gridOriginal = levelGrids[level];
+
+        int[,,] grid = new int[gridOriginal.GetLength(0), gridOriginal.GetLength(1), gridOriginal.GetLength(2)];
+
+        for (int i = 0; i < gridOriginal.GetLength(0); i++)
+        {
+            for (int j = 0; j < gridOriginal.GetLength(1); j++)
+            {
+                for (int k = 0; k < gridOriginal.GetLength(2); k++)
+                {
+                    grid[i, j, k] = gridOriginal[i, j, k];
+
+                }
+            }
+        }
+
+        Debug.Log("neues Grid");
+
+        List<Block> voxelBlocks = new List<Block>();
+        foreach (var block in activeBlocksEnemy)
+        {
+            int[,,] voxelMatrix = CreateVoxelMatrix(block);
+            Block voxelBlock = new Block(voxelMatrix);
+            voxelBlocks.Add(voxelBlock);
+            Debug.Log("neuer Block");
+        }
+
+        Debug.Log("START SOLVING");
+
+        /* StartCoroutine(SolveRecursion(grid, voxelBlocks, 0, result =>
+         {
+             Debug.Log("Gelöst: " + result);
+         }));*/
+
+        /* bool solved = SolveRecursion(grid, voxelBlocks, 0);
+
+          Debug.Log("Gelöst: " + solved);*/
+
+        /* Action<bool> onComplete = (success) =>
+         {
+             if (success)
+             {
+                 Debug.Log("Lösung gefunden!");
+             }
+             else
+             {
+                 Debug.Log("Keine Lösung gefunden.");
+             }
+         };
+
+         // Rekursionsaufruf starten
+         SolveRecursion(grid, voxelBlocks, 0, onComplete);*/
+
+        //Debug.Log("Gelöst: "+solved);
+        StartSolving(grid, voxelBlocks);
+
+
+    }
+
+    bool IsGridFull(int[,,] grid)
+    {
+        foreach (var value in grid)
+        {
+            if (value == 1) return false; // Es gibt noch unbedeckte Stellen.
+        }
+        return true;
+    }
+
+    // Die asynchrone Methode, die eine Task zurückgibt
+    private async Task<bool> SolveRecursionAsync(int[,,] grid, List<Block> blocks, int blockIndex)
+    {
+        if (blockIndex == blocks.Count)
+        {
+            // TODO Lösung testen
+            Debug.Log("Alles ausprobiert");
+            return IsGridFull(grid);
+        }
+
+        Block block = blocks[blockIndex];
+
+        // Wir verwenden hier `await Task.Yield()` um die Arbeit in kleineren Abschnitten durchzuführen
+        // und dem Main Thread Zeit zu geben, andere Aufgaben zu erledigen.
+        await Task.Yield(); // Hier wird der Kontext zurückgegeben, sodass der Hauptthread weiterläuft.
+
+        for (int y = 0; y < grid.GetLength(0); y++)
+        {
+            Debug.Log("Teste neue Ebene " + y);
+            for (int x = 0; x < grid.GetLength(1); x++)
+            {
+                for (int z = 0; z < grid.GetLength(2); z++)
+                {
+                    foreach (var rotatedBlock in block.GetAllRotations())
+                    {
+                        if (CheckPlacing(grid, rotatedBlock, x, y, z))
+                        {
+                            Debug.Log($"Platzierung möglich: Block {blockIndex} an Position ({x}, {y}, {z})");
+
+                            PlaceBlock(grid, rotatedBlock, x, y, z, blockIndex);
+                            Debug.Log(grid);
+                            DebugPrintGrid(grid);
+
+                            // Rekursiver Aufruf - Asynchron!
+                            bool result = await SolveRecursionAsync(grid, blocks, blockIndex + 1);
+                            if (result)
+                            {
+                                Debug.Log("Baustein passt");
+                                return true;
+                            }
+                            RemoveBlock(grid, rotatedBlock, x, y, z, blockIndex);
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    // Aufruf der asynchronen Methode
+    private void StartSolving(int[,,] grid, List<Block> blocks)
+    {
+        // Hier rufst du die asynchrone Methode auf
+        SolveRecursionAsync(grid, blocks, 0).ContinueWith(task =>
+        {
+            // Nach Abschluss der Task kannst du hier auf das Ergebnis zugreifen
+            if (task.Result)
+            {
+                Debug.Log("Lösung gefunden!");
+            }
+            else
+            {
+                Debug.Log("Keine Lösung gefunden.");
+            }
+        });
+    }
+
+
+    private bool SolveRecursion(int[,,] grid, List<Block> blocks, int blockIndex)
+    {
+        if (blockIndex == blocks.Count)
+        {
+            //TODO Lösung testen
+            Debug.Log("Alles ausprobiert");
+            return IsGridFull(grid);
+        }
+
+        Block block = blocks[blockIndex];
+        for (int y = 0; y < grid.GetLength(0); y++)
+        {
+            Debug.Log("Teste neue Ebene " + y);
+            for (int x = 0; x < grid.GetLength(1); x++)
+            {
+                for (int z = 0; z < grid.GetLength(2); z++)
+                {
+                    foreach (var rotatedBlock in block.GetAllRotations())
+                    {
+                        if (CheckPlacing(grid, rotatedBlock, x, y, z))
+                        {
+                            Debug.Log($"Platzierung möglich: Block {blockIndex} an Position ({x}, {y}, {z})");
+
+                            PlaceBlock(grid, rotatedBlock, x, y, z, blockIndex);
+                            Debug.Log(grid);
+                            DebugPrintGrid(grid);
+                            if (SolveRecursion(grid, blocks, blockIndex + 1))
+                            {
+                                Debug.Log("Baustein passt");
+                                return true;
+                            }
+                            RemoveBlock(grid, rotatedBlock, x, y, z, blockIndex);
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+    
+    /*
+    private void SolveRecursion(int[,,] grid, List<Block> blocks, int blockIndex, Action<bool> onComplete)
+    {
+        // Basisfall: Wenn alle Blöcke ausprobiert wurden
+        if (blockIndex == blocks.Count)
+        {
+            Debug.Log("Alles ausprobiert");
+            onComplete(IsGridFull(grid));  // Ergebnis zurückgeben
+            return;
+        }
+
+        Block block = blocks[blockIndex];
+        for (int y = 0; y < grid.GetLength(0); y++)
+        {
+            Debug.Log("Teste neue Ebene " + y);
+            for (int x = 0; x < grid.GetLength(1); x++)
+            {
+                for (int z = 0; z < grid.GetLength(2); z++)
+                {
+                    foreach (var rotatedBlock in block.GetAllRotations())
+                    {
+                        if (CheckPlacing(grid, rotatedBlock, x, y, z))
+                        {
+                            Debug.Log($"Platzierung möglich: Block {blockIndex} an Position ({x}, {y}, {z})");
+
+                            // Block platzieren und mit Rekursion fortfahren
+                            PlaceBlock(grid, rotatedBlock, x, y, z, blockIndex);
+                            Debug.Log(grid);
+                            DebugPrintGrid(grid);
+
+                            // Rekursive Methode aufrufen, ohne Yield
+                            SolveRecursion(grid, blocks, blockIndex + 1, onComplete);
+
+                            // Falls keine Lösung gefunden wird, Block wieder entfernen
+                            RemoveBlock(grid, rotatedBlock, x, y, z, blockIndex);
+                        }
+                    }
+                }
+            }
+        }
+
+        // Falls keine Lösung gefunden wurde, Callback mit false aufrufen
+        onComplete(false);
+    }
+
+    */
+
+    /*
+
+    private IEnumerator<object> SolveRecursion(int[,,] grid, List<Block> blocks, int blockIndex, Action<bool> onComplete)
+    {
+        if (blockIndex == blocks.Count)
+        {
+            //TODO Lösung testen
+            Debug.Log("Alles ausprobiert");
+            //return IsGridFull(grid);
+            onComplete(IsGridFull(grid));
+            yield break;
+        }
+
+        Block block = blocks[blockIndex];
+        for (int y = 0; y < grid.GetLength(0); y++)
+        {
+            Debug.Log("Teste neue Ebene "+ y);
+            for (int x = 0; x < grid.GetLength(1); x++)
+            {
+                for (int z = 0; z < grid.GetLength(2); z++)
+                {
+                    foreach (var rotatedBlock in block.GetAllRotations())
+                    {
+                        if (CheckPlacing(grid, rotatedBlock, x, y, z))
+                        {
+                            Debug.Log($"Platzierung möglich: Block {blockIndex} an Position ({x}, {y}, {z})");
+
+                            PlaceBlock(grid, rotatedBlock, x, y, z, blockIndex);
+                            Debug.Log(grid);
+                            DebugPrintGrid(grid);
+                            yield return StartCoroutine(SolveRecursion(grid, blocks, blockIndex + 1, onComplete));
+     
+                            RemoveBlock(grid, rotatedBlock, x, y, z, blockIndex);
+                        }
+                    }
+                }
+            }
+        }
+        //return false;
+        onComplete(false);
+    }
+*/
+
+    private void DebugPrintGrid(int[,,] grid)
+    {
+        // Iteriere über alle Dimensionen des 3D-Arrays
+        for (int y = 0; y < grid.GetLength(0); y++)
+        {
+            string rowString = ""; // Für die Ausgabe einer Zeile
+            for (int x = 0; x < grid.GetLength(1); x++)
+            {
+                for (int z = 0; z < grid.GetLength(2); z++)
+                {
+                    rowString += grid[y, x, z] + " "; // Füge den Wert für jede Position in der Zeile hinzu
+                }
+                // Debug-Ausgabe nach jedem "Z" (eine Schicht im Gitter)
+                Debug.Log(rowString);
+                rowString = ""; // Zeilenstring zurücksetzen
+            }
+        }
+    }
+
+    private Vector3 TransformToEnemyWorldPoints(Vector3 vector)
+    {
+        
+        vector *= cellSize;
+        vector += enemyGridStart;
+
+        return vector;
+    }
+
+
+    private void PlaceBlock(int[,,] grid, int[,,] block, int startX, int startY, int startZ, int blockIndex)
+    {
+        int index = 0;
+        for (int y = 0; y < block.GetLength(0); y++)
+        {
+            for (int x = 0; x < block.GetLength(1); x++)
+            {
+                for (int z = 0; z < block.GetLength(2); z++)
+                {
+                    if (block[y, x, z] == 1)
+                    {
+                        grid[startY + y, startX + x, startZ + z] = 2;
+
+                        //children[index].transform.position = new Vector3(x, y, z);
+                        activeBlocksEnemy[blockIndex].transform.GetChild(index).position = TransformToEnemyWorldPoints(new Vector3(startX +x, startY+y, startZ+z));
+                        Debug.Log("Vector vorher " + new Vector3(startX + x, startY + y, startZ + z));
+                        Debug.Log("Vector hinterher " + TransformToEnemyWorldPoints(new Vector3(startX + x, startY + y, startZ + z)));
+                        Debug.Log("Child of " + blockIndex);
+                        Debug.Log(index);
+
+                        index++;
+                        //activeBlocksEnemy[blockIndex].transform.position = new Vector3(0, 0, 0);
+                    }
+                }
+            }
+        }
+    }
+
+    private void RemoveBlock(int[,,] grid, int[,,] block, int startX, int startY, int startZ, int blockIndex)
+    {
+        int index = 0;
+        for (int y = 0; y < block.GetLength(0); y++)
+        {
+            for (int x = 0; x < block.GetLength(1); x++)
+            {
+                for (int z = 0; z < block.GetLength(2); z++)
+                {
+                    if (block[y, x, z] == 1)
+                    {
+                        grid[startY + y, startX + x, startZ + z] = 1;
+                        
+
+                        //activeBlocksEnemy[blockIndex].transform.GetChild(index).position = new Vector3(1, 1, 1);
+
+                    }
+                }
+            }
+        }
+    }
+
+    private bool CheckPlacing(int[,,] grid, int[,,] block, int startX, int startY, int startZ)
+    {
+        for (int y = 0; y < block.GetLength(0); y++)
+        {
+            for (int x = 0; x < block.GetLength(1); x++)
+            {
+                for (int z = 0; z < block.GetLength(2); z++)
+                {
+                    if (block[y, x, z] == 1)
+                    {
+                        int gridX = startX + x;
+                        int gridY = startY + y;
+                        int gridZ = startZ + z;
+
+                        if (gridY >= grid.GetLength(0) || gridX >= grid.GetLength(1) || gridZ >= grid.GetLength(2) || grid[gridY, gridX, gridZ] != 1)
+                        {
+                            return false;
+                        }   
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    private int[,,] CreateVoxelMatrix(GameObject block){
+        int maxX = 0;
+        int maxY = 0;
+        int maxZ = 0;
+        int minX = int.MaxValue;
+        int minY = int.MaxValue;
+        int minZ = int.MaxValue;
+
+        foreach (Transform voxel in block.transform)
+        {
+            Vector3 position = (block.transform.position - voxel.position) * (1/cellSize);
+
+            minX = Mathf.Min(minX, (int)Math.Round(position.x, MidpointRounding.AwayFromZero));
+            minY = Mathf.Min(minY, (int)Math.Round(position.y, MidpointRounding.AwayFromZero));
+            minZ = Mathf.Min(minZ, (int)Math.Round(position.z, MidpointRounding.AwayFromZero));
+            maxX = Mathf.Max(maxX, (int)Math.Round(position.x, MidpointRounding.AwayFromZero));
+            maxY = Mathf.Max(maxY, (int)Math.Round(position.y, MidpointRounding.AwayFromZero));
+            maxZ = Mathf.Max(maxZ, (int)Math.Round(position.z, MidpointRounding.AwayFromZero));
+        }
+
+        
+        Debug.Log(minX+ " "+minY+ " "+minZ);
+        int depth = Mathf.Max(1, maxX - minX + 1);
+        int height = Mathf.Max(1, maxY - minY + 1);
+        int width = Mathf.Max(1, maxZ - minZ + 1);
+
+        int size = Mathf.Max(depth, height, width);
+
+        int[,,] voxelMatrix = new int[size, size, size];
+
+        int i = 0;
+        foreach (Transform voxel in block.transform)
+        {
+            Vector3 position = (block.transform.position - voxel.position) * (1/cellSize);
+
+            int x = (int)Math.Round(position.x - minX, MidpointRounding.AwayFromZero);
+            int y = (int)Math.Round(position.y - minY, MidpointRounding.AwayFromZero);
+            int z = (int)Math.Round(position.z - minZ, MidpointRounding.AwayFromZero);
+            voxelMatrix[x, y, z] = 1;
+
+
+            float fx = position.x - minX;
+            float fy = position.y - minY;
+            float fz = position.z - minZ;
+
+            Debug.Log("vor runden " + fx+ " "+fy+" "+fz);
+            Debug.Log("\n Voxel " + i + " Position "+ position +" "+ x+ " "+y+" " +z);
+
+        }
+
+        Debug.Log("CreateVoxelMatrix");
+        DebugPrintGrid(voxelMatrix);
+        Debug.Log("  Ende");
+        return voxelMatrix;
+    }
+
+
+    class Block
+    {
+        public int[,,] Voxels { get; private set; }
+
+        public Block(int[,,] voxels)
+        {
+            Voxels = voxels;
+        }
+
+        public List<int[,,]> GetAllRotations()
+        {
+            List <int[,,]> rotations = new List<int[,,]>();
+
+            // Um jede Achse alle 4 Seiten
+            for (int x = 0; x < 4; x++)
+            {
+                for (int y = 0; y < 4; y++)
+                {
+                    for(int z = 0; z < 4; z++)
+                    {
+                        int[,,] rotatedVoxels = RotateVoxels(Voxels, x * 90, y * 90, z * 90);
+                        if(!rotations.Any(r => AreEqual(r, rotatedVoxels)))
+                        {
+                            rotations.Add(rotatedVoxels);
+                        }
+                    }
+                }
+            }
+            return rotations;
+        }
+
+        private bool AreEqual(int[,,] a, int[,,] b)
+        {
+            if (a.GetLength(0) != b.GetLength(0) || a.GetLength(1) != b.GetLength(1) || a.GetLength(2) != b.GetLength(2))
+                return false;
+
+            for (int x = 0; x < a.GetLength(0); x++)
+                for (int y = 0; y < a.GetLength(1); y++)
+                    for (int z = 0; z < a.GetLength(2); z++)
+                        if (a[x, y, z] != b[x, y, z])
+                            return false;
+
+            return true;
+        }
+        /*
+        public int[,,] RotateVoxels(int[,,] voxels, int x, int y, int z)
+        {
+            double xRadians = Math.PI * x / 180.0;
+            double yRadians = Math.PI * y / 180.0;
+            double zRadians = Math.PI * z / 180.0;
+
+            // Rotationsmatrizen berechnen
+            double[,] rotationX = {
+                { 1, 0, 0 },
+                { 0, Math.Cos(xRadians), -Math.Sin(xRadians) },
+                { 0, Math.Sin(xRadians), Math.Cos(xRadians) }
+            };
+
+            double[,] rotationY = {
+                { Math.Cos(yRadians), 0, Math.Sin(yRadians) },
+                { 0, 1, 0 },
+                { -Math.Sin(yRadians), 0, Math.Cos(yRadians) }
+            };
+
+            double[,] rotationZ = {
+                { Math.Cos(zRadians), -Math.Sin(zRadians), 0 },
+                { Math.Sin(zRadians), Math.Cos(zRadians), 0 },
+                { 0, 0, 1 }
+            };
+
+            int xSize = voxels.GetLength(0);
+            int ySize = voxels.GetLength(1);
+            int zSize = voxels.GetLength(2);
+
+            int[,,] rotatedVoxels = new int[xSize, ySize, zSize];
+
+            for (int xi = 0; xi < xSize; xi++)
+            {
+                for (int yi = 0; yi < ySize; yi++)
+                {
+                    for (int zi = 0; zi < zSize; zi++)
+                    {
+                        if (voxels[xi, yi, zi] == 1)
+                        {
+                            
+                            double[] rotatedVector = { xi, yi, zi };
+
+                            rotatedVector = rotateVector(rotatedVector, rotationX);
+                            rotatedVector = rotateVector(rotatedVector, rotationY);
+                            rotatedVector = rotateVector(rotatedVector, rotationZ);
+
+                            Debug.Log("rx "+rotatedVector[0]);
+                            Debug.Log("ry "+rotatedVector[1]);
+                            Debug.Log("rz "+rotatedVector[2]);
+
+                            Debug.Log("ix "+(int)Math.Round(rotatedVector[0]));
+                            Debug.Log("iy "+(int)Math.Round(rotatedVector[1]));
+                            Debug.Log("iz "+(int)Math.Round(rotatedVector[2]));    
+
+                            rotatedVoxels[(int)Math.Round(rotatedVector[0]), (int)Math.Round(rotatedVector[1]), (int)Math.Round(rotatedVector[2])] = 1;
+                        }
+
+                    }
+                }
+            }
+            return rotatedVoxels;
+        }*/
+
+
+
+
+        public int[,,] RotateVoxels(int[,,] voxels, int x, int y, int z)
+        {
+            double xRadians = Math.PI * x / 180.0;
+            double yRadians = Math.PI * y / 180.0;
+            double zRadians = Math.PI * z / 180.0;
+
+            // Rotationsmatrizen berechnen
+            double[,] rotationX = {
+        { 1, 0, 0 },
+        { 0, Math.Cos(xRadians), -Math.Sin(xRadians) },
+        { 0, Math.Sin(xRadians), Math.Cos(xRadians) }
+    };
+
+            double[,] rotationY = {
+        { Math.Cos(yRadians), 0, Math.Sin(yRadians) },
+        { 0, 1, 0 },
+        { -Math.Sin(yRadians), 0, Math.Cos(yRadians) }
+    };
+
+            double[,] rotationZ = {
+        { Math.Cos(zRadians), -Math.Sin(zRadians), 0 },
+        { Math.Sin(zRadians), Math.Cos(zRadians), 0 },
+        { 0, 0, 1 }
+    };
+
+            int xSize = voxels.GetLength(0);
+            int ySize = voxels.GetLength(1);
+            int zSize = voxels.GetLength(2);
+
+            List<double[]> rotatedVectors = new List<double[]>();
+
+            // Schritt 1: Alle rotieren und sammeln
+            for (int xi = 0; xi < xSize; xi++)
+            {
+                for (int yi = 0; yi < ySize; yi++)
+                {
+                    for (int zi = 0; zi < zSize; zi++)
+                    {
+                        if (voxels[xi, yi, zi] == 1)
+                        {
+                            double[] rotatedVector = { xi, yi, zi };
+                            rotatedVector = rotateVector(rotatedVector, rotationX);
+                            rotatedVector = rotateVector(rotatedVector, rotationY);
+                            rotatedVector = rotateVector(rotatedVector, rotationZ);
+
+                            rotatedVectors.Add(rotatedVector);
+                        }
+                    }
+                }
+            }
+
+            // Schritt 2: Minimalen Punkt berechnen
+            double minX = rotatedVectors.Min(v => v[0]);
+            double minY = rotatedVectors.Min(v => v[1]);
+            double minZ = rotatedVectors.Min(v => v[2]);
+
+            // Schritt 3: Normalisieren, um negative Werte zu vermeiden
+            int normalizedXSize = (int)Math.Ceiling(rotatedVectors.Max(v => v[0] - minX)) + 1;
+            int normalizedYSize = (int)Math.Ceiling(rotatedVectors.Max(v => v[1] - minY)) + 1;
+            int normalizedZSize = (int)Math.Ceiling(rotatedVectors.Max(v => v[2] - minZ)) + 1;
+
+            int[,,] rotatedVoxels = new int[normalizedXSize, normalizedYSize, normalizedZSize];
+
+            // Schritt 4: Voxel in die normalisierte Matrix einfügen
+            foreach (var vector in rotatedVectors)
+            {
+                int nx = (int)Math.Round(vector[0] - minX);
+                int ny = (int)Math.Round(vector[1] - minY);
+                int nz = (int)Math.Round(vector[2] - minZ);
+
+                rotatedVoxels[nx, ny, nz] = 1;
+            }
+
+            return rotatedVoxels;
+        }
+
+
+        private double[] rotateVector(double[] vector, double[,] matrix)
+        {
+            return new double[]
+            {
+                    vector[0] * matrix[0, 0] + vector[1] * matrix[0, 1] + vector[2] * matrix[0, 2],
+                    vector[0] * matrix[1, 0] + vector[1] * matrix[1, 1] + vector[2] * matrix[1, 2],
+                    vector[0] * matrix[2, 0] + vector[1] * matrix[2, 1] + vector[2] * matrix[2, 2]
+            };
+        }
+    }
+
+    private void NewBlocks(int level, bool enemy)
     {
         // Blocks vom alten Level l�schen
         foreach (GameObject block in activeBlocks)
@@ -468,10 +1122,17 @@ public class GridController : MonoBehaviour
         }
         activeBlocks.Clear();
 
+        foreach (GameObject block in activeBlocksEnemy)
+        {
+            Destroy(block);
+        }
+        activeBlocksEnemy.Clear();
+
 
         // Blocks f�r neues Level erstellen
         List<GameObject> blocksForLevel = levelBlocks[level];
         Vector3 startPosition = new Vector3(-10, 1, -1);
+        Vector3 startPositionEnemy = new Vector3(-3, 1, 6);
         float offsetZ = 1f;
 
         foreach (GameObject block in blocksForLevel)
@@ -482,11 +1143,28 @@ public class GridController : MonoBehaviour
             activeBlocks.Add(blockForLevel);
 
             startPosition.z += offsetZ;
+
+            if(enemy)
+            {
+                GameObject blockForLevelEnemy = Instantiate(block, startPositionEnemy, Quaternion.identity);
+                blockForLevelEnemy.SetActive(true);
+                blockForLevelEnemy.transform.rotation = Quaternion.Euler(0f, 0f, 90f);
+                XRGrabInteractable grabScript = blockForLevelEnemy.GetComponent<XRGrabInteractable>();
+                if (grabScript != null)
+                {
+                    grabScript.enabled = false;
+                }
+                activeBlocksEnemy.Add(blockForLevelEnemy);
+
+                Debug.Log("Enemy Block " + blockForLevelEnemy);
+
+                startPositionEnemy.z += offsetZ;
+            }
         }
 
     }
 
-    private void NewGrid(int level)
+    private void NewGrid(int level, bool enemy)
     {
         // Grid-Elemente von altem Level l�schen
         foreach (GameObject cellQuad in cellQuads)
@@ -529,12 +1207,23 @@ public class GridController : MonoBehaviour
 
                     Vector3 centerPosSurface = new Vector3(x * cellSize, 0, z * cellSize);
 
+
+
+
                     if (grid[0, x, z] == 0)
                     {
                         GameObject newCellQuad = Instantiate(cellQuadObj, centerPosSurface + gridCenter, Quaternion.identity, transform);
                         newCellQuad.transform.rotation = Quaternion.Euler(90f, 0f, 0f);
                         newCellQuad.SetActive(true);
                         cellQuads.Add(newCellQuad);
+
+                        if (enemy)
+                        {
+                            GameObject newCellQuadEnemy = Instantiate(cellQuadObj, centerPosSurface + enemyGridStart, Quaternion.identity, transform);
+                            newCellQuadEnemy.transform.rotation = Quaternion.Euler(90f, 0f, 0f);
+                            newCellQuadEnemy.SetActive(true);
+                            cellQuads.Add(newCellQuadEnemy);
+                        }
                     }
                     else if (grid[0, x, z] == 1)
                     {
@@ -542,6 +1231,14 @@ public class GridController : MonoBehaviour
                         newGameQuad.transform.rotation = Quaternion.Euler(90f, 0f, 0f);
                         newGameQuad.SetActive(true);
                         gameQuads.Add(newGameQuad);
+
+                        if (enemy)
+                        {
+                            GameObject newGameQuadEnemy = Instantiate(gameQuadObj, centerPosSurface + enemyGridStart, Quaternion.identity, transform);
+                            newGameQuadEnemy.transform.rotation = Quaternion.Euler(90f, 0f, 0f);
+                            newGameQuadEnemy.SetActive(true);
+                            gameQuads.Add(newGameQuadEnemy);
+                        }
                     }
 
 

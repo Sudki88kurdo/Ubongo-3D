@@ -263,6 +263,33 @@ public class GridController : MonoBehaviour
         }
     };
 
+     int[,,] grid3D3 =
+    {
+        {
+            {1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+            {1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+            {1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+            {1, 1, 0, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0},
+            {1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+            {0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0},
+            {1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
+
+
+        },
+        {
+            {1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+            {1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+            {0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0},
+            {0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 0, 0, 0},
+            {1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+            {0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0},
+            {1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
+
+
+        }
+    };
+
+
 
     //To make it easier to access the script from other scripts
     public static GridController current;
@@ -303,13 +330,17 @@ public class GridController : MonoBehaviour
         blocks.Add(blockComplex3);
 
 
-        levelBlocks[1] = new List<GameObject> {  blockT, blockPlus, blockL, blockI, blockMinus, blockRhomb };
+        levelBlocks[1] = new List<GameObject> {  blockT, blockPlus, blockL, blockI, blockMinus, blockRhomb, blockMinus, blockMinus };
         levelBlocks[2] = new List<GameObject> {  blockT, blockPlus, blockL, blockI, blockMinus, blockRhomb };
         levelBlocks[3] = new List<GameObject> {  blockT, blockPlus, blockL, blockI, blockMinus, blockRhomb };
-        levelBlocks[4] = new List<GameObject> {  blockMinus, blockRhomb };
+        levelBlocks[4] = new List<GameObject> {  blockMinus, blockRhomb   };
         levelBlocks[5] = new List<GameObject> {  blockMinus, blockRhomb, blockT, blockPattern5 };
         levelBlocks[6] = new List<GameObject> {  blockV, blockComplex1, blockComplex2, blockComplex3 };
         levelBlocks[7] = new List<GameObject> {  blockPlus, blockMinus, blockV, blockComplex1 };
+        for (int i = 8; i <= 10; i++){
+            levelBlocks[i] = new List<GameObject> {  blockComplex3,blockT,blockI,blockV, blockPlus,blockL, blockT,blockL, blockComplex1,blockMinus,blockMinus, blockComplex2, blockRhomb,blockL };
+            levelGrids[i] = grid3D3;
+        }
 
         levelGrids[1] = grid1;
         levelGrids[2] = grid2;
@@ -318,6 +349,7 @@ public class GridController : MonoBehaviour
         levelGrids[5] = testGrid3D;
         levelGrids[6] = grid3D1;
         levelGrids[7] = grid3D2;
+        
 
 
         LoadLevel(1);
@@ -452,12 +484,29 @@ public class GridController : MonoBehaviour
 
 
 
-    private void LoadLevel(int level)
+
+private void LoadLevel(int level)
+{
+    this.level = level;
+    if (level == 8)
     {
-        this.level = level;
-        NewBlocks(level);
-        NewGrid(level);
+        int[,,] generatedGrid = GenerateRandomStructuredGrid(2, 5, 5, blocks);
+        levelGrids[level] = generatedGrid;
+        
+    } 
+     if(level > 8)
+     {
+        int[,,] generatedGrid = GenerateRandomStructuredGrid(3, 7, 7, blocks);
+        levelGrids[level] = generatedGrid;
     }
+    else
+    {
+        // Verwenden Sie die vorhandene Level-Generierung für Level unter 7
+        levelGrids[level] = levelGrids[level];
+    }
+    NewBlocks(level);
+    NewGrid(level);
+}
 
     private void NewBlocks(int level)
     {
@@ -650,4 +699,132 @@ public class GridController : MonoBehaviour
     {
         SnapToGrid(target); 
     }
+
+private int[,,] GenerateRandomStructuredGrid(int depth, int width, int height, List<GameObject> blocks)
+{
+    int[,,] grid = new int[depth, width, height];
+    System.Random rand = new System.Random();
+
+    // Sicherstellen, dass mindestens zwei benachbarte Blöcke auf der ersten Ebene platziert werden
+    int startX = rand.Next(0, width - 1);  // Mindestens zwei nebeneinander
+    int startZ = rand.Next(1, height);     // Zufällige Höhe
+    grid[0, startX, startZ] = 1;          // Erster Block
+    grid[0, startX + 1, startZ] = 1;      // Zweiter Block, nebeneinander
+
+    // Liste der verbundenen Blöcke mit der Position der beiden ersten Blöcke
+    List<Vector3Int> connectedBlocks = new List<Vector3Int>
+    {
+        new Vector3Int(startX, 0, startZ),
+        new Vector3Int(startX + 1, 0, startZ)
+    };
+
+    // Platzierung der restlichen Blöcke
+    foreach (var block in blocks)
+    {
+        bool placed = false;
+        int attempts = 0;
+
+        while (!placed && attempts < 100)  // Versuche, den Block zu platzieren
+        {
+            // Wähle einen zufälligen verbundenen Block aus der Liste
+            Vector3Int connectedBlock = connectedBlocks[rand.Next(connectedBlocks.Count)];
+            List<Vector3Int> possiblePositions = new List<Vector3Int>();
+
+            // Überprüfen alle benachbarten Positionen (oben, unten, links, rechts, vorne, hinten)
+            foreach (Vector3Int direction in new Vector3Int[] {
+                new Vector3Int(1, 0, 0), new Vector3Int(-1, 0, 0),
+                new Vector3Int(0, 0, 1), new Vector3Int(0, 0, -1),
+                new Vector3Int(0, 1, 0), new Vector3Int(0, -1, 0)
+            })
+            {
+                Vector3Int newPosition = connectedBlock + direction;
+
+                if (newPosition.x >= 0 && newPosition.x < width && newPosition.y >= 0 && newPosition.y < depth && newPosition.z >= 0 && newPosition.z < height && grid[newPosition.y, newPosition.x, newPosition.z] == 0)
+                {
+                    possiblePositions.Add(newPosition);
+                }
+            }
+
+            // Wenn es mindestens zwei benachbarte Positionen gibt, die leer sind
+            if (possiblePositions.Count >= 2)
+            {
+                // Wähle zufällig eine der möglichen Positionen aus
+                Vector3Int chosenPosition = possiblePositions[rand.Next(possiblePositions.Count)];
+                grid[chosenPosition.y, chosenPosition.x, chosenPosition.z] = 1;
+                connectedBlocks.Add(chosenPosition);  // Der Block wird der Liste der verbundenen Blöcke hinzugefügt
+                placed = true;
+            }
+            attempts++;
+        }
+    }
+
+    // Stellen sicher, dass alle Blöcke miteinander verbunden sind
+    EnsureConnectivity(grid, width, height, depth);
+
+    return grid;
+}
+
+// Hilfsfunktion, um die Verbindung der Blöcke zu überprüfen und sicherzustellen, dass alle zusammenhängend sind
+private void EnsureConnectivity(int[,,] grid, int width, int height, int depth)
+{
+    bool[,,] visited = new bool[depth, width, height];
+    Queue<Vector3Int> queue = new Queue<Vector3Int>();
+
+    // Suche nach dem ersten Block (den ersten befüllten Block)
+    for (int y = 0; y < depth; y++)
+    {
+        for (int x = 0; x < width; x++)
+        {
+            for (int z = 0; z < height; z++)
+            {
+                if (grid[y, x, z] == 1)
+                {
+                    queue.Enqueue(new Vector3Int(x, y, z));
+                    visited[y, x, z] = true;
+                    break;
+                }
+            }
+        }
+    }
+
+    // Führe eine Breitensuche durch, um alle erreichbaren Blöcke zu besuchen
+    while (queue.Count > 0)
+    {
+        Vector3Int current = queue.Dequeue();
+
+        foreach (Vector3Int direction in new Vector3Int[] {
+            new Vector3Int(1, 0, 0), new Vector3Int(-1, 0, 0),
+            new Vector3Int(0, 0, 1), new Vector3Int(0, 0, -1),
+            new Vector3Int(0, 1, 0), new Vector3Int(0, -1, 0)
+        })
+        {
+            Vector3Int neighbor = current + direction;
+
+            if (neighbor.x >= 0 && neighbor.x < width && neighbor.y >= 0 && neighbor.y < depth && neighbor.z >= 0 && neighbor.z < height && grid[neighbor.y, neighbor.x, neighbor.z] == 1 && !visited[neighbor.y, neighbor.x, neighbor.z])
+            {
+                visited[neighbor.y, neighbor.x, neighbor.z] = true;
+                queue.Enqueue(neighbor);
+            }
+        }
+    }
+
+    // Überprüfen, ob alle Blöcke erreicht wurden
+    for (int y = 0; y < depth; y++)
+    {
+        for (int x = 0; x < width; x++)
+        {
+            for (int z = 0; z < height; z++)
+            {
+                if (grid[y, x, z] == 1 && !visited[y, x, z])
+                {
+                    // Falls ein Block nicht verbunden ist, platziere ihn so, dass er verbunden wird
+                    grid[y, x, z] = 1;
+                }
+            }
+        }
+    }
+}
+
+
+    
 }

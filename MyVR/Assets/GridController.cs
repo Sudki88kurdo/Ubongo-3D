@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
@@ -19,6 +21,8 @@ public class GridController : MonoBehaviour
     public GameObject gameQuadObj;
     public GameObject gameCubeColorObj;
 
+    public GameObject enemyZone;
+
     // Erweiterung: Bei jedem Level werden Bausteine erzeugt
     public GameObject blockPattern5;
     public GameObject blockT;
@@ -34,6 +38,8 @@ public class GridController : MonoBehaviour
 
     public GameObject gameMenu;
     public GameObject winWindow;
+    public GameObject loseWindow;
+    public GameObject enemyWindow;
     public Transform head;
     public float spawnDistanceMenu = 2f;
     public float spawnDistanceWindow = 1.5f;
@@ -42,12 +48,20 @@ public class GridController : MonoBehaviour
     private List<GameObject> activeBlocks = new List<GameObject>();
     private List<GameObject> activeBlocksEnemy = new List<GameObject>();
 
-    private Vector3 enemyGridStart = new Vector3(1, 0, 7);
+    private Vector3 enemyGridStart = new Vector3(-1, 0, 7);
 
     private Dictionary<int, int[,,]> levelGrids = new Dictionary<int, int[,,]>();
 
     private int level = 1;
 
+
+    private int waitingTime = 1000;
+
+    //private Stopwatch time = new Stopwatch();
+
+    private CancellationTokenSource oldCancellationToken;
+
+    private bool winner = false;
 
     public enum WinState
     {
@@ -56,7 +70,16 @@ public class GridController : MonoBehaviour
         WinWindow
     }
 
+    private enum Player
+    {
+        Person,
+        Computer
+    }
+
     public WinState winState;
+
+    private Vector3 startPosition = new Vector3(-10, 1, -1);
+    private Vector3 startPositionEnemy = new Vector3(-3, 1, 6);
 
 
 
@@ -65,46 +88,16 @@ public class GridController : MonoBehaviour
     int[,,] grid1 =
     {
         {
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+            {0, 1, 1, 1, 0},
+            {0, 1, 1, 1, 1},
+            {0, 1, 1, 1, 0},
+            {0, 1, 1, 1, 0}
         },
         {
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+            { 0, 0, 0, 0, 0},
+            { 0, 0, 0, 0, 0},
+            { 0, 0, 0, 0, 0},
+            { 0, 0, 0, 0, 0}
         }
     };
 
@@ -113,97 +106,33 @@ public class GridController : MonoBehaviour
     int[,,] grid2 =
     {
         {
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-            {0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-            {0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-            {0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-            {0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-            {0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-            {0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-            {0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
+            {0, 1, 1, 0, 0},
+            {0, 1, 1, 0, 0},
+            {0, 1, 1, 0, 0},
+            {0, 1, 1, 1, 1}
         },
         {
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+            { 0, 0, 0, 0, 0},
+            { 0, 0, 0, 0, 0},
+            { 0, 0, 0, 0, 0},
+            { 0, 0, 0, 0, 0}
         }
     };
 
 
     int[,,] grid3 =
-    {
+    {   
         {
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 },
-            {0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 },
-            {0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 },
-            {0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 },
-            {0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 },
-            {0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
+            {0, 1, 1, 1, 1},
+            {0, 1, 1, 0, 1},
+            {0, 1, 1, 1, 1},
+            {0, 0, 0, 0, 1}
         },
         {
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+            { 0, 0, 0, 0, 0},
+            { 0, 0, 0, 0, 0},
+            { 0, 0, 0, 0, 0},
+            { 0, 0, 0, 0, 0}
         }
     };
 
@@ -256,7 +185,7 @@ public class GridController : MonoBehaviour
     };
 
     int[,,] grid3D2 =
-{
+    {
         {
             {1, 1, 1, 1, 1},
             {0, 1, 1, 1, 0},
@@ -266,6 +195,66 @@ public class GridController : MonoBehaviour
         {
             {0, 1, 0, 1, 1},
             {0, 1, 0, 1, 0},
+            {0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0}
+        }
+    };
+
+    int[,,] grid3D3 =
+    {
+        {
+            {0, 0, 0, 1, 1},
+            {0, 1, 1, 1, 1},
+            {0, 0, 1, 1, 0},
+            {0, 0, 0, 0, 0}
+        },
+        {
+            {0, 0, 0, 0, 0},
+            {0, 1, 1, 0, 0},
+            {0, 0, 1, 1, 0},
+            {0, 0, 0, 0, 0}
+        }
+    };
+
+    int[,,] grid3D4 =
+{
+        {
+            {0, 0, 0, 0, 0},
+            {0, 1, 1, 1, 0},
+            {0, 1, 1, 1, 0},
+            {0, 0, 0, 0, 0}
+        },
+        {
+            {0, 0, 0, 0, 0},
+            {0, 1, 1, 0, 0},
+            {0, 1, 0, 0, 0},
+            {0, 0, 0, 0, 0}
+        }
+    };
+
+    int[,,] grid3D5 =
+{
+        {
+            {0, 0, 0, 0, 0},
+            {0, 1, 1, 0, 0},
+            {0, 1, 1, 1, 0},
+            {0, 0, 0, 0, 0}
+        },
+        {
+            {0, 0, 0, 0, 0},
+            {0, 1, 1, 0, 0},
+            {0, 1, 1, 1, 0},
+            {0, 0, 0, 0, 0}
+        },
+        {
+            {0, 0, 0, 0, 0},
+            {0, 1, 1, 0, 0},
+            {0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0}
+        },
+        {
+            {0, 0, 0, 0, 0},
+            {0, 1, 0, 0, 0},
             {0, 0, 0, 0, 0},
             {0, 0, 0, 0, 0}
         }
@@ -283,12 +272,7 @@ public class GridController : MonoBehaviour
 
     private GameObject generalTarget;
 
-    /*
-    private float previousY = -1;
-    private float noMovementThreshold = 0.01f; 
-    private float stationaryTime = 0f;
-    private float stationaryTimeLimit = 0.5f;
-    */
+
 
     void Start()
     {
@@ -312,13 +296,16 @@ public class GridController : MonoBehaviour
         blocks.Add(blockComplex3);
 
 
-        levelBlocks[1] = new List<GameObject> { blockT, blockPlus, blockL, blockI, blockMinus, blockRhomb };
-        levelBlocks[2] = new List<GameObject> { blockT, blockPlus, blockL, blockI, blockMinus, blockRhomb };
-        levelBlocks[3] = new List<GameObject> { blockT, blockPlus, blockL, blockI, blockMinus, blockRhomb };
+        levelBlocks[1] = new List<GameObject> { blockT, blockPlus, blockL};
+        levelBlocks[2] = new List<GameObject> { blockI, blockMinus, blockRhomb };
+        levelBlocks[3] = new List<GameObject> { blockT, blockL, blockI };
         levelBlocks[4] = new List<GameObject> { blockMinus, blockRhomb };
         levelBlocks[5] = new List<GameObject> { blockMinus, blockRhomb, blockT };
         levelBlocks[6] = new List<GameObject> { blockV, blockComplex1, blockComplex2, blockComplex3 };
         levelBlocks[7] = new List<GameObject> { blockPlus, blockMinus, blockV, blockComplex1 };
+        levelBlocks[8] = new List<GameObject> { blockComplex2, blockV, blockRhomb };
+        levelBlocks[9] = new List<GameObject> { blockV, blockL, blockMinus};
+        levelBlocks[10] = new List<GameObject> { blockComplex1, blockComplex3, blockI};
 
         levelGrids[1] = grid1;
         levelGrids[2] = grid2;
@@ -327,11 +314,10 @@ public class GridController : MonoBehaviour
         levelGrids[5] = testGrid3D;
         levelGrids[6] = grid3D1;
         levelGrids[7] = grid3D2;
+        levelGrids[8] = grid3D3;
+        levelGrids[9] = grid3D4;
+        levelGrids[10] = grid3D5;
 
-
-        LoadLevel(1);
-
-        TestSolution(level);
 
     }
 
@@ -347,10 +333,7 @@ public class GridController : MonoBehaviour
             gameMenu.transform.position = head.position + new Vector3(head.forward.x, 0, head.forward.z).normalized * spawnDistanceMenu;
             gameMenu.transform.LookAt(new Vector3(head.position.x, gameMenu.transform.position.y, head.position.z));
             gameMenu.transform.forward *= -1;
-            winWindow.SetActive(true);
-            winWindow.transform.position = head.position + new Vector3(head.forward.x, 0, head.forward.z).normalized * spawnDistanceWindow;
-            winWindow.transform.LookAt(new Vector3(head.position.x, gameMenu.transform.position.y, head.position.z));
-            winWindow.transform.forward *= -1;
+            WinGame(Player.Person);
         }
         if (!win)
         {
@@ -359,39 +342,6 @@ public class GridController : MonoBehaviour
 
     }
 
-    /*
-    private void TestMovement()
-    {
-        if (generalTarget == null) return;
-
-        if(previousY < 0)
-        {
-            previousY = generalTarget.transform.position.y;
-            return;
-        }
-        float deltaY = Mathf.Abs(generalTarget.transform.position.y - previousY);
-        if (deltaY < noMovementThreshold)
-        {
-            stationaryTime += Time.deltaTime;
-
-            // Wenn Baustein nicht mehr f�llt
-            if (stationaryTime >= stationaryTimeLimit)
-            {
-                Debug.Log($"{generalTarget} y: {generalTarget.transform.position.y}");
-                stationaryTime = 0;
-                generalTarget = null;
-                previousY = -1;
-                
-                return;
-            } 
-        }
-        else
-        {
-            stationaryTime = 0;
-                
-        }
-        previousY = generalTarget.transform.position.y;
-    }*/
 
     private Boolean TestSolution(int level)
     {
@@ -462,30 +412,31 @@ public class GridController : MonoBehaviour
 
 
 
-    private void LoadLevel(int level)
-    {
-        this.level = level;
-        
-
-        //SolveLevel(4);
-
-        //SolveLevel(5);
-        
-        if(level >= 4)
+    private void LoadLevel(int level, int speed)
+    {   if(oldCancellationToken != null)
         {
-            NewBlocks(level, true);
-            NewGrid(level, true);
-            SolveLevel(level);
-        } else
+            oldCancellationToken.Cancel();
+            oldCancellationToken.Dispose();
+        }
+        winner = false;
+        
+        oldCancellationToken = new CancellationTokenSource();
+        if(speed == -1)
         {
+            enemyZone.SetActive(false);
             NewBlocks(level, false);
             NewGrid(level, false);
-        }
-        
+        } else
+        {
+            enemyZone.SetActive(true);
+            NewBlocks(level, true);
+            NewGrid(level, true);
+            SolveLevel(level, speed*waitingTime, oldCancellationToken.Token);
+        }   
     }
 
 
-    private void SolveLevel(int level)
+    private void SolveLevel(int level, int wait, CancellationToken cancelTask)
     {
         int[,,] gridOriginal = levelGrids[level];
 
@@ -503,7 +454,7 @@ public class GridController : MonoBehaviour
             }
         }
 
-        Debug.Log("neues Grid");
+        UnityEngine.Debug.Log("neues Grid");
 
         List<Block> voxelBlocks = new List<Block>();
         foreach (var block in activeBlocksEnemy)
@@ -511,37 +462,13 @@ public class GridController : MonoBehaviour
             int[,,] voxelMatrix = CreateVoxelMatrix(block);
             Block voxelBlock = new Block(voxelMatrix);
             voxelBlocks.Add(voxelBlock);
-            Debug.Log("neuer Block");
+            UnityEngine.Debug.Log("neuer Block");
         }
 
-        Debug.Log("START SOLVING");
+        UnityEngine.Debug.Log("START SOLVING");
 
-        /* StartCoroutine(SolveRecursion(grid, voxelBlocks, 0, result =>
-         {
-             Debug.Log("Gelöst: " + result);
-         }));*/
-
-        /* bool solved = SolveRecursion(grid, voxelBlocks, 0);
-
-          Debug.Log("Gelöst: " + solved);*/
-
-        /* Action<bool> onComplete = (success) =>
-         {
-             if (success)
-             {
-                 Debug.Log("Lösung gefunden!");
-             }
-             else
-             {
-                 Debug.Log("Keine Lösung gefunden.");
-             }
-         };
-
-         // Rekursionsaufruf starten
-         SolveRecursion(grid, voxelBlocks, 0, onComplete);*/
-
-        //Debug.Log("Gelöst: "+solved);
-        StartSolving(grid, voxelBlocks);
+        Stopwatch timer = Stopwatch.StartNew();
+        StartSolving(grid, voxelBlocks, wait, cancelTask, timer);
 
 
     }
@@ -555,13 +482,20 @@ public class GridController : MonoBehaviour
         return true;
     }
 
+
     // Die asynchrone Methode, die eine Task zurückgibt
-    private async Task<bool> SolveRecursionAsync(int[,,] grid, List<Block> blocks, int blockIndex)
+    private async Task<bool> SolveRecursionAsync(int[,,] grid, List<Block> blocks, int blockIndex, int wait, CancellationToken cancelTask, Stopwatch timer)
     {
+        if(cancelTask.IsCancellationRequested)
+        {
+            UnityEngine.Debug.Log("CANCEL");
+            return false;
+        }
+        
         if (blockIndex == blocks.Count)
         {
             // TODO Lösung testen
-            Debug.Log("Alles ausprobiert");
+            UnityEngine.Debug.Log("Alles ausprobiert");
             return IsGridFull(grid);
         }
 
@@ -573,7 +507,7 @@ public class GridController : MonoBehaviour
 
         for (int y = 0; y < grid.GetLength(0); y++)
         {
-            Debug.Log("Teste neue Ebene " + y);
+            UnityEngine.Debug.Log("Teste neue Ebene " + y);
             for (int x = 0; x < grid.GetLength(1); x++)
             {
                 for (int z = 0; z < grid.GetLength(2); z++)
@@ -582,17 +516,29 @@ public class GridController : MonoBehaviour
                     {
                         if (CheckPlacing(grid, rotatedBlock, x, y, z))
                         {
-                            Debug.Log($"Platzierung möglich: Block {blockIndex} an Position ({x}, {y}, {z})");
+                            UnityEngine.Debug.Log($"Platzierung möglich: Block {blockIndex} an Position ({x}, {y}, {z})");
 
                             PlaceBlock(grid, rotatedBlock, x, y, z, blockIndex);
-                            Debug.Log(grid);
+                            UnityEngine.Debug.Log(grid);
                             DebugPrintGrid(grid);
 
+                            //wait time wait
+                            timer.Stop();
+                            long timeDuration = timer.ElapsedMilliseconds;
+                            long remainingTime = wait - timeDuration;
+
+                            if(remainingTime > 0)
+                            {
+                                await Task.Delay((int)remainingTime);
+                            }
+
+                            timer.Restart();
+
                             // Rekursiver Aufruf - Asynchron!
-                            bool result = await SolveRecursionAsync(grid, blocks, blockIndex + 1);
+                            bool result = await SolveRecursionAsync(grid, blocks, blockIndex + 1, wait, cancelTask, timer);
                             if (result)
                             {
-                                Debug.Log("Baustein passt");
+                                UnityEngine.Debug.Log("Baustein passt");
                                 return true;
                             }
                             RemoveBlock(grid, rotatedBlock, x, y, z, blockIndex);
@@ -605,153 +551,25 @@ public class GridController : MonoBehaviour
     }
 
     // Aufruf der asynchronen Methode
-    private void StartSolving(int[,,] grid, List<Block> blocks)
+    private async void StartSolving(int[,,] grid, List<Block> blocks, int wait, CancellationToken cancelTask, Stopwatch timer)
     {
-        // Hier rufst du die asynchrone Methode auf
-        SolveRecursionAsync(grid, blocks, 0).ContinueWith(task =>
+        bool solved = await SolveRecursionAsync(grid, blocks, 0, wait, cancelTask, timer);
+
+        // Prüfen, ob das Puzzle gelöst wurde
+        if (solved)
         {
-            // Nach Abschluss der Task kannst du hier auf das Ergebnis zugreifen
-            if (task.Result)
-            {
-                Debug.Log("Lösung gefunden!");
-            }
-            else
-            {
-                Debug.Log("Keine Lösung gefunden.");
-            }
-        });
+            UnityEngine.Debug.Log("Lösung gefunden!");
+            WinGame(Player.Computer);
+        }
+        else
+        {
+            UnityEngine.Debug.Log("Keine Lösung gefunden oder abgebrochen.");
+        }
+
     }
 
 
-    private bool SolveRecursion(int[,,] grid, List<Block> blocks, int blockIndex)
-    {
-        if (blockIndex == blocks.Count)
-        {
-            //TODO Lösung testen
-            Debug.Log("Alles ausprobiert");
-            return IsGridFull(grid);
-        }
 
-        Block block = blocks[blockIndex];
-        for (int y = 0; y < grid.GetLength(0); y++)
-        {
-            Debug.Log("Teste neue Ebene " + y);
-            for (int x = 0; x < grid.GetLength(1); x++)
-            {
-                for (int z = 0; z < grid.GetLength(2); z++)
-                {
-                    foreach (var rotatedBlock in block.GetAllRotations())
-                    {
-                        if (CheckPlacing(grid, rotatedBlock, x, y, z))
-                        {
-                            Debug.Log($"Platzierung möglich: Block {blockIndex} an Position ({x}, {y}, {z})");
-
-                            PlaceBlock(grid, rotatedBlock, x, y, z, blockIndex);
-                            Debug.Log(grid);
-                            DebugPrintGrid(grid);
-                            if (SolveRecursion(grid, blocks, blockIndex + 1))
-                            {
-                                Debug.Log("Baustein passt");
-                                return true;
-                            }
-                            RemoveBlock(grid, rotatedBlock, x, y, z, blockIndex);
-                        }
-                    }
-                }
-            }
-        }
-        return false;
-    }
-    
-    /*
-    private void SolveRecursion(int[,,] grid, List<Block> blocks, int blockIndex, Action<bool> onComplete)
-    {
-        // Basisfall: Wenn alle Blöcke ausprobiert wurden
-        if (blockIndex == blocks.Count)
-        {
-            Debug.Log("Alles ausprobiert");
-            onComplete(IsGridFull(grid));  // Ergebnis zurückgeben
-            return;
-        }
-
-        Block block = blocks[blockIndex];
-        for (int y = 0; y < grid.GetLength(0); y++)
-        {
-            Debug.Log("Teste neue Ebene " + y);
-            for (int x = 0; x < grid.GetLength(1); x++)
-            {
-                for (int z = 0; z < grid.GetLength(2); z++)
-                {
-                    foreach (var rotatedBlock in block.GetAllRotations())
-                    {
-                        if (CheckPlacing(grid, rotatedBlock, x, y, z))
-                        {
-                            Debug.Log($"Platzierung möglich: Block {blockIndex} an Position ({x}, {y}, {z})");
-
-                            // Block platzieren und mit Rekursion fortfahren
-                            PlaceBlock(grid, rotatedBlock, x, y, z, blockIndex);
-                            Debug.Log(grid);
-                            DebugPrintGrid(grid);
-
-                            // Rekursive Methode aufrufen, ohne Yield
-                            SolveRecursion(grid, blocks, blockIndex + 1, onComplete);
-
-                            // Falls keine Lösung gefunden wird, Block wieder entfernen
-                            RemoveBlock(grid, rotatedBlock, x, y, z, blockIndex);
-                        }
-                    }
-                }
-            }
-        }
-
-        // Falls keine Lösung gefunden wurde, Callback mit false aufrufen
-        onComplete(false);
-    }
-
-    */
-
-    /*
-
-    private IEnumerator<object> SolveRecursion(int[,,] grid, List<Block> blocks, int blockIndex, Action<bool> onComplete)
-    {
-        if (blockIndex == blocks.Count)
-        {
-            //TODO Lösung testen
-            Debug.Log("Alles ausprobiert");
-            //return IsGridFull(grid);
-            onComplete(IsGridFull(grid));
-            yield break;
-        }
-
-        Block block = blocks[blockIndex];
-        for (int y = 0; y < grid.GetLength(0); y++)
-        {
-            Debug.Log("Teste neue Ebene "+ y);
-            for (int x = 0; x < grid.GetLength(1); x++)
-            {
-                for (int z = 0; z < grid.GetLength(2); z++)
-                {
-                    foreach (var rotatedBlock in block.GetAllRotations())
-                    {
-                        if (CheckPlacing(grid, rotatedBlock, x, y, z))
-                        {
-                            Debug.Log($"Platzierung möglich: Block {blockIndex} an Position ({x}, {y}, {z})");
-
-                            PlaceBlock(grid, rotatedBlock, x, y, z, blockIndex);
-                            Debug.Log(grid);
-                            DebugPrintGrid(grid);
-                            yield return StartCoroutine(SolveRecursion(grid, blocks, blockIndex + 1, onComplete));
-     
-                            RemoveBlock(grid, rotatedBlock, x, y, z, blockIndex);
-                        }
-                    }
-                }
-            }
-        }
-        //return false;
-        onComplete(false);
-    }
-*/
 
     private void DebugPrintGrid(int[,,] grid)
     {
@@ -766,7 +584,7 @@ public class GridController : MonoBehaviour
                     rowString += grid[y, x, z] + " "; // Füge den Wert für jede Position in der Zeile hinzu
                 }
                 // Debug-Ausgabe nach jedem "Z" (eine Schicht im Gitter)
-                Debug.Log(rowString);
+                UnityEngine.Debug.Log(rowString);
                 rowString = ""; // Zeilenstring zurücksetzen
             }
         }
@@ -777,6 +595,9 @@ public class GridController : MonoBehaviour
         
         vector *= cellSize;
         vector += enemyGridStart;
+        vector += new Vector3(0, cellSize / 2, 0);
+     
+        UnityEngine.Debug.Log("VECTOR " +vector);
 
         return vector;
     }
@@ -797,10 +618,10 @@ public class GridController : MonoBehaviour
 
                         //children[index].transform.position = new Vector3(x, y, z);
                         activeBlocksEnemy[blockIndex].transform.GetChild(index).position = TransformToEnemyWorldPoints(new Vector3(startX +x, startY+y, startZ+z));
-                        Debug.Log("Vector vorher " + new Vector3(startX + x, startY + y, startZ + z));
-                        Debug.Log("Vector hinterher " + TransformToEnemyWorldPoints(new Vector3(startX + x, startY + y, startZ + z)));
-                        Debug.Log("Child of " + blockIndex);
-                        Debug.Log(index);
+                        UnityEngine.Debug.Log("Vector vorher " + new Vector3(startX + x, startY + y, startZ + z));
+                        UnityEngine.Debug.Log("Vector hinterher " + TransformToEnemyWorldPoints(new Vector3(startX + x, startY + y, startZ + z)));
+                        UnityEngine.Debug.Log("Child of " + blockIndex);
+                        UnityEngine.Debug.Log(index);
 
                         index++;
                         //activeBlocksEnemy[blockIndex].transform.position = new Vector3(0, 0, 0);
@@ -822,10 +643,16 @@ public class GridController : MonoBehaviour
                     if (block[y, x, z] == 1)
                     {
                         grid[startY + y, startX + x, startZ + z] = 1;
-                        
 
-                        //activeBlocksEnemy[blockIndex].transform.GetChild(index).position = new Vector3(1, 1, 1);
 
+                        float xBlock = startPositionEnemy.x + x*cellSize;
+                        float yBlock = y*cellSize + cellSize/2;
+                        float zBlock = startPositionEnemy.z + 1f*blockIndex + z*cellSize;
+
+                        UnityEngine.Debug.Log(xBlock + " "+yBlock +" "+ zBlock);
+
+                        activeBlocksEnemy[blockIndex].transform.GetChild(index).position = new Vector3(xBlock, yBlock, zBlock);
+                        index++;
                     }
                 }
             }
@@ -877,8 +704,8 @@ public class GridController : MonoBehaviour
             maxZ = Mathf.Max(maxZ, (int)Math.Round(position.z, MidpointRounding.AwayFromZero));
         }
 
-        
-        Debug.Log(minX+ " "+minY+ " "+minZ);
+
+        UnityEngine.Debug.Log(minX+ " "+minY+ " "+minZ);
         int depth = Mathf.Max(1, maxX - minX + 1);
         int height = Mathf.Max(1, maxY - minY + 1);
         int width = Mathf.Max(1, maxZ - minZ + 1);
@@ -902,14 +729,14 @@ public class GridController : MonoBehaviour
             float fy = position.y - minY;
             float fz = position.z - minZ;
 
-            Debug.Log("vor runden " + fx+ " "+fy+" "+fz);
-            Debug.Log("\n Voxel " + i + " Position "+ position +" "+ x+ " "+y+" " +z);
+            UnityEngine.Debug.Log("vor runden " + fx+ " "+fy+" "+fz);
+            UnityEngine.Debug.Log("\n Voxel " + i + " Position "+ position +" "+ x+ " "+y+" " +z);
 
         }
 
-        Debug.Log("CreateVoxelMatrix");
+        UnityEngine.Debug.Log("CreateVoxelMatrix");
         DebugPrintGrid(voxelMatrix);
-        Debug.Log("  Ende");
+        UnityEngine.Debug.Log("  Ende");
         return voxelMatrix;
     }
 
@@ -958,7 +785,9 @@ public class GridController : MonoBehaviour
 
             return true;
         }
-        /*
+
+
+
         public int[,,] RotateVoxels(int[,,] voxels, int x, int y, int z)
         {
             double xRadians = Math.PI * x / 180.0;
@@ -983,72 +812,6 @@ public class GridController : MonoBehaviour
                 { Math.Sin(zRadians), Math.Cos(zRadians), 0 },
                 { 0, 0, 1 }
             };
-
-            int xSize = voxels.GetLength(0);
-            int ySize = voxels.GetLength(1);
-            int zSize = voxels.GetLength(2);
-
-            int[,,] rotatedVoxels = new int[xSize, ySize, zSize];
-
-            for (int xi = 0; xi < xSize; xi++)
-            {
-                for (int yi = 0; yi < ySize; yi++)
-                {
-                    for (int zi = 0; zi < zSize; zi++)
-                    {
-                        if (voxels[xi, yi, zi] == 1)
-                        {
-                            
-                            double[] rotatedVector = { xi, yi, zi };
-
-                            rotatedVector = rotateVector(rotatedVector, rotationX);
-                            rotatedVector = rotateVector(rotatedVector, rotationY);
-                            rotatedVector = rotateVector(rotatedVector, rotationZ);
-
-                            Debug.Log("rx "+rotatedVector[0]);
-                            Debug.Log("ry "+rotatedVector[1]);
-                            Debug.Log("rz "+rotatedVector[2]);
-
-                            Debug.Log("ix "+(int)Math.Round(rotatedVector[0]));
-                            Debug.Log("iy "+(int)Math.Round(rotatedVector[1]));
-                            Debug.Log("iz "+(int)Math.Round(rotatedVector[2]));    
-
-                            rotatedVoxels[(int)Math.Round(rotatedVector[0]), (int)Math.Round(rotatedVector[1]), (int)Math.Round(rotatedVector[2])] = 1;
-                        }
-
-                    }
-                }
-            }
-            return rotatedVoxels;
-        }*/
-
-
-
-
-        public int[,,] RotateVoxels(int[,,] voxels, int x, int y, int z)
-        {
-            double xRadians = Math.PI * x / 180.0;
-            double yRadians = Math.PI * y / 180.0;
-            double zRadians = Math.PI * z / 180.0;
-
-            // Rotationsmatrizen berechnen
-            double[,] rotationX = {
-        { 1, 0, 0 },
-        { 0, Math.Cos(xRadians), -Math.Sin(xRadians) },
-        { 0, Math.Sin(xRadians), Math.Cos(xRadians) }
-    };
-
-            double[,] rotationY = {
-        { Math.Cos(yRadians), 0, Math.Sin(yRadians) },
-        { 0, 1, 0 },
-        { -Math.Sin(yRadians), 0, Math.Cos(yRadians) }
-    };
-
-            double[,] rotationZ = {
-        { Math.Cos(zRadians), -Math.Sin(zRadians), 0 },
-        { Math.Sin(zRadians), Math.Cos(zRadians), 0 },
-        { 0, 0, 1 }
-    };
 
             int xSize = voxels.GetLength(0);
             int ySize = voxels.GetLength(1);
@@ -1131,22 +894,23 @@ public class GridController : MonoBehaviour
 
         // Blocks f�r neues Level erstellen
         List<GameObject> blocksForLevel = levelBlocks[level];
-        Vector3 startPosition = new Vector3(-10, 1, -1);
-        Vector3 startPositionEnemy = new Vector3(-3, 1, 6);
         float offsetZ = 1f;
+        Vector3 position = startPosition;
+        Vector3 positionEnemy = startPositionEnemy;
 
         foreach (GameObject block in blocksForLevel)
         {
-            GameObject blockForLevel = Instantiate(block, startPosition, Quaternion.identity);
+
+            
+            GameObject blockForLevel = Instantiate(block, position, Quaternion.identity);
             blockForLevel.SetActive(true);
             blockForLevel.transform.rotation = Quaternion.Euler(0f, 0f, 90f);
             activeBlocks.Add(blockForLevel);
+            position.z += offsetZ;
 
-            startPosition.z += offsetZ;
-
-            if(enemy)
+            if (enemy)
             {
-                GameObject blockForLevelEnemy = Instantiate(block, startPositionEnemy, Quaternion.identity);
+                GameObject blockForLevelEnemy = Instantiate(block, positionEnemy, Quaternion.identity);
                 blockForLevelEnemy.SetActive(true);
                 blockForLevelEnemy.transform.rotation = Quaternion.Euler(0f, 0f, 90f);
                 XRGrabInteractable grabScript = blockForLevelEnemy.GetComponent<XRGrabInteractable>();
@@ -1156,9 +920,9 @@ public class GridController : MonoBehaviour
                 }
                 activeBlocksEnemy.Add(blockForLevelEnemy);
 
-                Debug.Log("Enemy Block " + blockForLevelEnemy);
+                UnityEngine.Debug.Log("Enemy Block " + blockForLevelEnemy);
 
-                startPositionEnemy.z += offsetZ;
+                positionEnemy.z += offsetZ;
             }
         }
 
@@ -1264,13 +1028,14 @@ public class GridController : MonoBehaviour
 
     public void SetLevel(int index)
     {
-        if(index < levelGrids.Count)
+        this.level = index + 1;
+        if (index < levelGrids.Count)
         {
-            LoadLevel(index + 1);
+            LoadLevel(index + 1, -1);
         }
         else
         {
-            Debug.LogError("Ung�ltiger Index: " + index);
+            UnityEngine.Debug.LogError("Ung�ltiger Index: " + index);
         }
 
         
@@ -1278,37 +1043,6 @@ public class GridController : MonoBehaviour
         
     }
 
-
-    /*
-    //Is a world position within the grid?
-    public bool IsWorldPosInGrid(Vector3 worldPos)
-    {
-        bool isWithin = false;
-
-        Vector3 relativePos = worldPos - transform.position;
-
-        int gridX = TranslateFromWorldToGrid(relativePos.x);
-        int gridZ = TranslateFromWorldToGrid(relativePos.z);
-
-        if (gridX >= 0 && gridZ >= 0 && gridX < gridSize && gridZ < gridSize)
-        {
-            isWithin = true;
-        }
-
-        return isWithin;
-    }
-
-    //Translate from world position to grid position
-    private int TranslateFromWorldToGrid(float pos)
-    {
-        int gridPos = Mathf.FloorToInt(pos / cellSize);
-        Console.WriteLine(Mathf.FloorToInt(pos / 1f));
-        Console.WriteLine(Mathf.FloorToInt(pos / 0.4f));
-        System.Console.WriteLine(Mathf.FloorToInt(pos / 1f));
-        System.Console.WriteLine(Mathf.FloorToInt(pos / 0.4f));
-
-        return gridPos;
-    }*/
 
 
 
@@ -1333,11 +1067,6 @@ public class GridController : MonoBehaviour
 
         target.transform.rotation = Quaternion.Euler(snappedX, snappedY, snappedZ);
 
-
-        // Ausgabe f�r Debugging
-        // Debug.Log($"Snapping to: {target.transform.position}");
-        // Debug.Log($"Current rotation: {currentRotation.eulerAngles}");
-
         generalTarget = target;
 
     }
@@ -1346,5 +1075,34 @@ public class GridController : MonoBehaviour
     public void OnRelease(GameObject target)
     {
         SnapToGrid(target); 
+    }
+
+    public void StartGame(int speed)
+    {
+        enemyWindow.SetActive(false);
+        LoadLevel(level, speed);
+    }
+
+    private void WinGame(Player player)
+    {
+        if(!winner)
+        {
+            if (player == Player.Person)
+            {
+                winWindow.SetActive(true);
+                winWindow.transform.position = head.position + new Vector3(head.forward.x, 0, head.forward.z).normalized * spawnDistanceWindow;
+                winWindow.transform.LookAt(new Vector3(head.position.x, gameMenu.transform.position.y, head.position.z));
+                winWindow.transform.forward *= -1;
+            }
+            else
+            {
+                loseWindow.SetActive(true);
+                loseWindow.transform.position = head.position + new Vector3(head.forward.x, 0, head.forward.z).normalized * spawnDistanceWindow;
+                loseWindow.transform.LookAt(new Vector3(head.position.x, gameMenu.transform.position.y, head.position.z));
+                loseWindow.transform.forward *= -1;
+            }
+
+            winner = true;
+        }
     }
 }

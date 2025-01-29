@@ -9,6 +9,7 @@ public class GameMenuManager : MonoBehaviour
     public float spawnDistance = 2f;
     public GameObject menu;
     public InputActionProperty showButton;
+    public GameObject enemyCanvas;
 
     // Start is called before the first frame update
     void Start()
@@ -28,5 +29,14 @@ public class GameMenuManager : MonoBehaviour
         menu.transform.LookAt(new Vector3(head.position.x, menu.transform.position.y, head.position.z));
         menu.transform.forward *= -1;
         
+    }
+
+    public void StartGame()
+    {
+        menu.SetActive(false);
+        enemyCanvas.SetActive(true);
+        enemyCanvas.transform.position = head.position + new Vector3(head.forward.x, 0, head.forward.z).normalized * spawnDistance;
+        enemyCanvas.transform.LookAt(new Vector3(head.position.x, enemyCanvas.transform.position.y, head.position.z));
+        enemyCanvas.transform.forward *= -1;
     }
 }

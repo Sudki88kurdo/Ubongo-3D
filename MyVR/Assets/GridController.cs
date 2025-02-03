@@ -40,6 +40,8 @@ public class GridController : MonoBehaviour
     public GameObject winWindow;
     public GameObject loseWindow;
     public GameObject enemyWindow;
+    public GameObject solvableWindow;
+    public GameObject unsolvableWindow;
     public Transform head;
     public float spawnDistanceMenu = 2f;
     public float spawnDistanceWindow = 1.5f;
@@ -73,7 +75,9 @@ public class GridController : MonoBehaviour
     private enum Player
     {
         Person,
-        Computer
+        Computer,
+        Solvable,
+        Unsolvable
     }
 
     public WinState winState;
@@ -261,6 +265,55 @@ public class GridController : MonoBehaviour
     };
 
 
+    int[,,] unsolvable1 =
+    {
+        {
+            {1, 1, 0, 0, 0},
+            {1, 1, 0, 0, 0},
+            {1, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0}
+        },
+        {
+            {0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0}
+        }
+    };
+
+    int[,,] unsolvable2 =
+{
+        {
+            {1, 1, 0, 0, 0},
+            {1, 1, 1, 0, 0},
+            {1, 1, 0, 0, 0},
+            {0, 0, 0, 0, 0}
+        },
+        {
+            {0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0}
+        }
+    };
+
+    int[,,] unsolvable3 =
+{
+        {
+            {1, 0, 0, 0, 0},
+            {1, 0, 0, 0, 0},
+            {1, 1, 1, 1, 0},
+            {0, 0, 0, 0, 0}
+        },
+        {
+            {0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0}
+        }
+    };
+
+
     //To make it easier to access the script from other scripts
     public static GridController current;
 
@@ -306,6 +359,9 @@ public class GridController : MonoBehaviour
         levelBlocks[8] = new List<GameObject> { blockComplex2, blockV, blockRhomb };
         levelBlocks[9] = new List<GameObject> { blockV, blockL, blockMinus};
         levelBlocks[10] = new List<GameObject> { blockComplex1, blockComplex3, blockI};
+        levelBlocks[11] = new List<GameObject> { blockMinus, blockRhomb };
+        levelBlocks[12] = new List<GameObject> { blockMinus, blockRhomb };
+        levelBlocks[13] = new List<GameObject> { blockMinus, blockRhomb };
 
         levelGrids[1] = grid1;
         levelGrids[2] = grid2;
@@ -317,6 +373,9 @@ public class GridController : MonoBehaviour
         levelGrids[8] = grid3D3;
         levelGrids[9] = grid3D4;
         levelGrids[10] = grid3D5;
+        levelGrids[11] = unsolvable1;
+        levelGrids[12] = unsolvable2;
+        levelGrids[13] = unsolvable3;
 
 
     }
@@ -431,12 +490,20 @@ public class GridController : MonoBehaviour
             enemyZone.SetActive(true);
             NewBlocks(level, true);
             NewGrid(level, true);
-            SolveLevel(level, speed*waitingTime, oldCancellationToken.Token);
+
+            if (speed == 0)
+            {
+                SolveLevel(level, speed * waitingTime, oldCancellationToken.Token, true);
+            }
+            else
+            {
+                SolveLevel(level, speed * waitingTime, oldCancellationToken.Token, false);
+            }
         }   
     }
 
 
-    private void SolveLevel(int level, int wait, CancellationToken cancelTask)
+    private void SolveLevel(int level, int wait, CancellationToken cancelTask, bool check)
     {
         int[,,] gridOriginal = levelGrids[level];
 
@@ -468,7 +535,7 @@ public class GridController : MonoBehaviour
         UnityEngine.Debug.Log("START SOLVING");
 
         Stopwatch timer = Stopwatch.StartNew();
-        StartSolving(grid, voxelBlocks, wait, cancelTask, timer);
+        StartSolving(grid, voxelBlocks, wait, cancelTask, timer, check);
 
 
     }
@@ -551,15 +618,21 @@ public class GridController : MonoBehaviour
     }
 
     // Aufruf der asynchronen Methode
-    private async void StartSolving(int[,,] grid, List<Block> blocks, int wait, CancellationToken cancelTask, Stopwatch timer)
+    private async void StartSolving(int[,,] grid, List<Block> blocks, int wait, CancellationToken cancelTask, Stopwatch timer, bool check)
     {
         bool solved = await SolveRecursionAsync(grid, blocks, 0, wait, cancelTask, timer);
 
         // Prüfen, ob das Puzzle gelöst wurde
-        if (solved)
+        if (solved && !check)
         {
             UnityEngine.Debug.Log("Lösung gefunden!");
             WinGame(Player.Computer);
+        } else if(solved && check)
+        {
+            WinGame(Player.Solvable);
+        } else if(!solved && check)
+        {
+            WinGame(Player.Unsolvable);
         }
         else
         {
@@ -1094,7 +1167,7 @@ public class GridController : MonoBehaviour
                 winWindow.transform.LookAt(new Vector3(head.position.x, gameMenu.transform.position.y, head.position.z));
                 winWindow.transform.forward *= -1;
             }
-            else
+            else if (player == Player.Computer) 
             {
                 loseWindow.SetActive(true);
                 loseWindow.transform.position = head.position + new Vector3(head.forward.x, 0, head.forward.z).normalized * spawnDistanceWindow;
@@ -1104,5 +1177,22 @@ public class GridController : MonoBehaviour
 
             winner = true;
         }
+
+
+        if (player == Player.Solvable) 
+        {
+            solvableWindow.SetActive(true);
+            solvableWindow.transform.position = head.position + new Vector3(head.forward.x, 0, head.forward.z).normalized * spawnDistanceWindow;
+            solvableWindow.transform.LookAt(new Vector3(head.position.x, gameMenu.transform.position.y, head.position.z));
+            solvableWindow.transform.forward *= -1;
+        } 
+        else if (player == Player.Unsolvable) 
+        {
+            unsolvableWindow.SetActive(true);
+            unsolvableWindow.transform.position = head.position + new Vector3(head.forward.x, 0, head.forward.z).normalized * spawnDistanceWindow;
+            unsolvableWindow.transform.LookAt(new Vector3(head.position.x, gameMenu.transform.position.y, head.position.z));
+            unsolvableWindow.transform.forward *= -1;
+        }
+
     }
 }

@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.ProBuilder.Shapes;
@@ -13,6 +14,8 @@ using static UnityEngine.GraphicsBuffer;
 
 public class GridController : MonoBehaviour
 {
+    int recursion = 0;
+
     //Gr��e eines Grids
     public float cellSize = 0.2f;
 
@@ -40,6 +43,7 @@ public class GridController : MonoBehaviour
     public GameObject winWindow;
     public GameObject loseWindow;
     public GameObject enemyWindow;
+    public GameObject noEnemyWindow;
     public GameObject solvableWindow;
     public GameObject unsolvableWindow;
     public Transform head;
@@ -54,7 +58,7 @@ public class GridController : MonoBehaviour
 
     private Dictionary<int, int[,,]> levelGrids = new Dictionary<int, int[,,]>();
 
-    private int level = 1;
+    private int level = 0;
 
 
     private int waitingTime = 1000;
@@ -313,6 +317,102 @@ public class GridController : MonoBehaviour
         }
     };
 
+    int[,,] unsolvable4 =
+{
+        {
+            {1, 1, 1, 1, 1},
+            {0, 1, 1, 1, 0},
+            {0, 0, 1, 0, 0},
+            {0, 0, 0, 0, 0}
+        },
+        {
+            {0, 1, 1, 1, 1},
+            {0, 1, 1, 1, 0},
+            {0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0}
+        }
+    };
+
+    int[,,] unsolvable5 =
+{
+        {
+            {0, 1, 1, 1, 0},
+            {0, 1, 1, 1, 0},
+            {0, 0, 1, 0, 0},
+            {0, 0, 0, 0, 0}
+        },
+        {
+            {0, 1, 0, 1, 1},
+            {0, 1, 0, 1, 0},
+            {0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0}
+        }
+    };
+
+    int[,,] unsolvable6 =
+{
+        {
+            {1, 1, 1, 1, 1},
+            {0, 1, 1, 1, 0},
+            {0, 0, 0, 0, 0},
+            {0, 0, 1, 0, 0}
+        },
+        {
+            {0, 1, 0, 1, 1},
+            {0, 1, 0, 1, 0},
+            {0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0}
+        }
+    };
+
+    int[,,] unsolvable7 =
+{
+        {
+            {0, 1, 1, 1, 1},
+            {0, 1, 1, 1, 1},
+            {0, 0, 1, 1, 0},
+            {0, 0, 0, 0, 0}
+        },
+        {
+            {0, 0, 0, 0, 0},
+            {0, 1, 1, 1, 0},
+            {0, 0, 1, 1, 0},
+            {0, 0, 0, 0, 0}
+        }
+    };
+
+    int[,,] unsolvable8 =
+{
+        {
+            {0, 0, 0, 1, 0},
+            {0, 1, 1, 1, 0},
+            {0, 0, 1, 1, 0},
+            {0, 0, 0, 0, 0}
+        },
+        {
+            {0, 0, 0, 0, 0},
+            {0, 1, 1, 0, 0},
+            {0, 0, 1, 0, 0},
+            {0, 0, 0, 0, 0}
+        }
+    };
+
+    int[,,] unsolvable9 =
+{
+        {
+            {0, 0, 1, 1, 1},
+            {0, 0, 1, 1, 1},
+            {0, 0, 1, 1, 0},
+            {0, 0, 0, 0, 0}
+        },
+        {
+            {0, 0, 1, 1, 0},
+            {0, 0, 0, 0, 0},
+            {0, 0, 1, 1, 0},
+            {0, 0, 0, 0, 0}
+        }
+    };
+
 
     //To make it easier to access the script from other scripts
     public static GridController current;
@@ -362,6 +462,12 @@ public class GridController : MonoBehaviour
         levelBlocks[11] = new List<GameObject> { blockMinus, blockRhomb };
         levelBlocks[12] = new List<GameObject> { blockMinus, blockRhomb };
         levelBlocks[13] = new List<GameObject> { blockMinus, blockRhomb };
+        levelBlocks[14] = new List<GameObject> { blockPlus, blockMinus, blockV, blockComplex1 };
+        levelBlocks[15] = new List<GameObject> { blockPlus, blockMinus, blockV, blockComplex1 };
+        levelBlocks[16] = new List<GameObject> { blockPlus, blockMinus, blockV, blockComplex1 };
+        levelBlocks[17] = new List<GameObject> { blockComplex2, blockV, blockRhomb };
+        levelBlocks[18] = new List<GameObject> { blockComplex2, blockV, blockRhomb };
+        levelBlocks[19] = new List<GameObject> { blockComplex2, blockV, blockRhomb };
 
         levelGrids[1] = grid1;
         levelGrids[2] = grid2;
@@ -376,6 +482,12 @@ public class GridController : MonoBehaviour
         levelGrids[11] = unsolvable1;
         levelGrids[12] = unsolvable2;
         levelGrids[13] = unsolvable3;
+        levelGrids[14] = unsolvable4;
+        levelGrids[15] = unsolvable5;
+        levelGrids[16] = unsolvable6;
+        levelGrids[17] = unsolvable7;
+        levelGrids[18] = unsolvable8;
+        levelGrids[19] = unsolvable9;
 
 
     }
@@ -505,6 +617,9 @@ public class GridController : MonoBehaviour
 
     private void SolveLevel(int level, int wait, CancellationToken cancelTask, bool check)
     {
+        Stopwatch check1 = Stopwatch.StartNew();
+
+
         int[,,] gridOriginal = levelGrids[level];
 
         int[,,] grid = new int[gridOriginal.GetLength(0), gridOriginal.GetLength(1), gridOriginal.GetLength(2)];
@@ -521,7 +636,7 @@ public class GridController : MonoBehaviour
             }
         }
 
-        UnityEngine.Debug.Log("neues Grid");
+        //UnityEngine.Debug.Log("neues Grid");
 
         List<Block> voxelBlocks = new List<Block>();
         foreach (var block in activeBlocksEnemy)
@@ -529,12 +644,16 @@ public class GridController : MonoBehaviour
             int[,,] voxelMatrix = CreateVoxelMatrix(block);
             Block voxelBlock = new Block(voxelMatrix);
             voxelBlocks.Add(voxelBlock);
-            UnityEngine.Debug.Log("neuer Block");
+            //UnityEngine.Debug.Log("neuer Block");
         }
 
-        UnityEngine.Debug.Log("START SOLVING");
+        //UnityEngine.Debug.Log("START SOLVING");
 
         Stopwatch timer = Stopwatch.StartNew();
+
+        check1.Stop();
+        UnityEngine.Debug.Log("Level: " +level);
+        UnityEngine.Debug.Log("Zeit für SolveLevel: " + check1.ElapsedMilliseconds + " ms");
         StartSolving(grid, voxelBlocks, wait, cancelTask, timer, check);
 
 
@@ -553,16 +672,16 @@ public class GridController : MonoBehaviour
     // Die asynchrone Methode, die eine Task zurückgibt
     private async Task<bool> SolveRecursionAsync(int[,,] grid, List<Block> blocks, int blockIndex, int wait, CancellationToken cancelTask, Stopwatch timer)
     {
+        recursion++;
         if(cancelTask.IsCancellationRequested)
         {
-            UnityEngine.Debug.Log("CANCEL");
+            //UnityEngine.Debug.Log("CANCEL");
             return false;
         }
         
         if (blockIndex == blocks.Count)
         {
-            // TODO Lösung testen
-            UnityEngine.Debug.Log("Alles ausprobiert");
+            //UnityEngine.Debug.Log("Alles ausprobiert");
             return IsGridFull(grid);
         }
 
@@ -574,7 +693,7 @@ public class GridController : MonoBehaviour
 
         for (int y = 0; y < grid.GetLength(0); y++)
         {
-            UnityEngine.Debug.Log("Teste neue Ebene " + y);
+            //UnityEngine.Debug.Log("Teste neue Ebene " + y);
             for (int x = 0; x < grid.GetLength(1); x++)
             {
                 for (int z = 0; z < grid.GetLength(2); z++)
@@ -583,11 +702,11 @@ public class GridController : MonoBehaviour
                     {
                         if (CheckPlacing(grid, rotatedBlock, x, y, z))
                         {
-                            UnityEngine.Debug.Log($"Platzierung möglich: Block {blockIndex} an Position ({x}, {y}, {z})");
+                            //UnityEngine.Debug.Log($"Platzierung möglich: Block {blockIndex} an Position ({x}, {y}, {z})");
 
                             PlaceBlock(grid, rotatedBlock, x, y, z, blockIndex);
-                            UnityEngine.Debug.Log(grid);
-                            DebugPrintGrid(grid);
+                            //UnityEngine.Debug.Log(grid);
+                            // DebugPrintGrid(grid);
 
                             //wait time wait
                             timer.Stop();
@@ -605,7 +724,7 @@ public class GridController : MonoBehaviour
                             bool result = await SolveRecursionAsync(grid, blocks, blockIndex + 1, wait, cancelTask, timer);
                             if (result)
                             {
-                                UnityEngine.Debug.Log("Baustein passt");
+                                // UnityEngine.Debug.Log("Baustein passt");
                                 return true;
                             }
                             RemoveBlock(grid, rotatedBlock, x, y, z, blockIndex);
@@ -620,12 +739,19 @@ public class GridController : MonoBehaviour
     // Aufruf der asynchronen Methode
     private async void StartSolving(int[,,] grid, List<Block> blocks, int wait, CancellationToken cancelTask, Stopwatch timer, bool check)
     {
+        Stopwatch check2 = Stopwatch.StartNew();
+        recursion = 0;
         bool solved = await SolveRecursionAsync(grid, blocks, 0, wait, cancelTask, timer);
+
+        check2.Stop();
+        UnityEngine.Debug.Log("solved: " + solved + " wait " + wait + " check " + check);
+        UnityEngine.Debug.Log("Zeit für alle Rekursionen: " + check2.ElapsedMilliseconds + " ms");
+        UnityEngine.Debug.Log("Rekursive Aufrufe: " + recursion);
 
         // Prüfen, ob das Puzzle gelöst wurde
         if (solved && !check)
         {
-            UnityEngine.Debug.Log("Lösung gefunden!");
+            //UnityEngine.Debug.Log("Lösung gefunden!");
             WinGame(Player.Computer);
         } else if(solved && check)
         {
@@ -670,7 +796,7 @@ public class GridController : MonoBehaviour
         vector += enemyGridStart;
         vector += new Vector3(0, cellSize / 2, 0);
      
-        UnityEngine.Debug.Log("VECTOR " +vector);
+        //UnityEngine.Debug.Log("VECTOR " +vector);
 
         return vector;
     }
@@ -691,10 +817,10 @@ public class GridController : MonoBehaviour
 
                         //children[index].transform.position = new Vector3(x, y, z);
                         activeBlocksEnemy[blockIndex].transform.GetChild(index).position = TransformToEnemyWorldPoints(new Vector3(startX +x, startY+y, startZ+z));
-                        UnityEngine.Debug.Log("Vector vorher " + new Vector3(startX + x, startY + y, startZ + z));
+                        /*UnityEngine.Debug.Log("Vector vorher " + new Vector3(startX + x, startY + y, startZ + z));
                         UnityEngine.Debug.Log("Vector hinterher " + TransformToEnemyWorldPoints(new Vector3(startX + x, startY + y, startZ + z)));
                         UnityEngine.Debug.Log("Child of " + blockIndex);
-                        UnityEngine.Debug.Log(index);
+                        UnityEngine.Debug.Log(index);*/
 
                         index++;
                         //activeBlocksEnemy[blockIndex].transform.position = new Vector3(0, 0, 0);
@@ -722,7 +848,7 @@ public class GridController : MonoBehaviour
                         float yBlock = y*cellSize + cellSize/2;
                         float zBlock = startPositionEnemy.z + 1f*blockIndex + z*cellSize;
 
-                        UnityEngine.Debug.Log(xBlock + " "+yBlock +" "+ zBlock);
+                        // UnityEngine.Debug.Log(xBlock + " "+yBlock +" "+ zBlock);
 
                         activeBlocksEnemy[blockIndex].transform.GetChild(index).position = new Vector3(xBlock, yBlock, zBlock);
                         index++;
@@ -778,7 +904,7 @@ public class GridController : MonoBehaviour
         }
 
 
-        UnityEngine.Debug.Log(minX+ " "+minY+ " "+minZ);
+        //UnityEngine.Debug.Log(minX+ " "+minY+ " "+minZ);
         int depth = Mathf.Max(1, maxX - minX + 1);
         int height = Mathf.Max(1, maxY - minY + 1);
         int width = Mathf.Max(1, maxZ - minZ + 1);
@@ -787,7 +913,7 @@ public class GridController : MonoBehaviour
 
         int[,,] voxelMatrix = new int[size, size, size];
 
-        int i = 0;
+        //int i = 0;
         foreach (Transform voxel in block.transform)
         {
             Vector3 position = (block.transform.position - voxel.position) * (1/cellSize);
@@ -802,14 +928,14 @@ public class GridController : MonoBehaviour
             float fy = position.y - minY;
             float fz = position.z - minZ;
 
-            UnityEngine.Debug.Log("vor runden " + fx+ " "+fy+" "+fz);
-            UnityEngine.Debug.Log("\n Voxel " + i + " Position "+ position +" "+ x+ " "+y+" " +z);
+            //UnityEngine.Debug.Log("vor runden " + fx+ " "+fy+" "+fz);
+            //UnityEngine.Debug.Log("\n Voxel " + i + " Position "+ position +" "+ x+ " "+y+" " +z);
 
         }
 
-        UnityEngine.Debug.Log("CreateVoxelMatrix");
-        DebugPrintGrid(voxelMatrix);
-        UnityEngine.Debug.Log("  Ende");
+        //UnityEngine.Debug.Log("CreateVoxelMatrix");
+        // DebugPrintGrid(voxelMatrix);
+        //UnityEngine.Debug.Log("  Ende");
         return voxelMatrix;
     }
 
@@ -993,7 +1119,7 @@ public class GridController : MonoBehaviour
                 }
                 activeBlocksEnemy.Add(blockForLevelEnemy);
 
-                UnityEngine.Debug.Log("Enemy Block " + blockForLevelEnemy);
+                //UnityEngine.Debug.Log("Enemy Block " + blockForLevelEnemy);
 
                 positionEnemy.z += offsetZ;
             }
@@ -1101,10 +1227,16 @@ public class GridController : MonoBehaviour
 
     public void SetLevel(int index)
     {
-        this.level = index + 1;
-        if (index < levelGrids.Count)
+        this.level = index;
+        if (index == 0)
         {
-            LoadLevel(index + 1, -1);
+            // automatisch generiertes Level
+            UnityEngine.Debug.Log("Automatische generiertes Level");
+            
+        }
+        else if (index < levelGrids.Count)
+        {
+            LoadLevel(index, -1);
         }
         else
         {
@@ -1150,10 +1282,32 @@ public class GridController : MonoBehaviour
         SnapToGrid(target); 
     }
 
+    public void StartEnemyWindow()
+    {
+        gameMenu.SetActive(false);
+        if (level == 0)
+        {
+            noEnemyWindow.SetActive(true);
+            noEnemyWindow.transform.position = head.position + new Vector3(head.forward.x, 0, head.forward.z).normalized * spawnDistanceMenu;
+            noEnemyWindow.transform.LookAt(new Vector3(head.position.x, noEnemyWindow.transform.position.y, head.position.z));
+            noEnemyWindow.transform.forward *= -1;
+        } else
+        {
+            enemyWindow.SetActive(true);
+            enemyWindow.transform.position = head.position + new Vector3(head.forward.x, 0, head.forward.z).normalized * spawnDistanceMenu;
+            enemyWindow.transform.LookAt(new Vector3(head.position.x, enemyWindow.transform.position.y, head.position.z));
+            enemyWindow.transform.forward *= -1;
+        } 
+    }
+
     public void StartGame(int speed)
     {
         enemyWindow.SetActive(false);
-        LoadLevel(level, speed);
+        noEnemyWindow.SetActive(false);
+        if (this.level > 0)
+        {
+            LoadLevel(level, speed);
+        }
     }
 
     private void WinGame(Player player)
@@ -1196,3 +1350,4 @@ public class GridController : MonoBehaviour
 
     }
 }
+

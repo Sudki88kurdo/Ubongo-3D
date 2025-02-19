@@ -15,6 +15,7 @@ using static UnityEngine.GraphicsBuffer;
 public class GridController : MonoBehaviour
 {
     int recursion = 0;
+    //int operations = 0;
 
     //Gr��e eines Grids
     public float cellSize = 0.2f;
@@ -489,11 +490,15 @@ public class GridController : MonoBehaviour
         levelGrids[18] = unsolvable8;
         levelGrids[19] = unsolvable9;
 
-
+        RotationCheck(blocks);
     }
 
     void Update()
     {
+        if(level == 0)
+        {
+            return;
+        }
         //TestMovement();
         Boolean win = TestSolution(level);
         if (win && winState == WinState.Playing)
@@ -511,6 +516,20 @@ public class GridController : MonoBehaviour
             winState = WinState.Playing;
         }
 
+    }
+
+    private void RotationCheck(List<GameObject> checkBlocks)
+    {
+        var blockNum = 0;
+        foreach (var block in checkBlocks)
+        {
+            int[,,] voxelMatrix = CreateVoxelMatrix(block);
+            Block voxelBlock = new Block(voxelMatrix);
+            List<int[,,]> rotationList = voxelBlock.GetAllRotations();
+            int size = rotationList.Count;
+            UnityEngine.Debug.Log("Rotationen von Block "+blockNum+": "+size);
+            blockNum++;
+        }
     }
 
 
@@ -540,9 +559,6 @@ public class GridController : MonoBehaviour
         bool equal = MatrixEqual(grid, solutionGrid);
         //Debug.Log(equal);
         return equal;
-
-
-
 
     }
 
@@ -584,7 +600,12 @@ public class GridController : MonoBehaviour
 
 
     private void LoadLevel(int level, int speed)
-    {   if(oldCancellationToken != null)
+    {   
+        if(level == 0)
+        {
+            return;
+        }
+        if(oldCancellationToken != null)
         {
             oldCancellationToken.Cancel();
             oldCancellationToken.Dispose();
@@ -741,12 +762,14 @@ public class GridController : MonoBehaviour
     {
         Stopwatch check2 = Stopwatch.StartNew();
         recursion = 0;
+        //operations = 0;
         bool solved = await SolveRecursionAsync(grid, blocks, 0, wait, cancelTask, timer);
 
         check2.Stop();
         UnityEngine.Debug.Log("solved: " + solved + " wait " + wait + " check " + check);
         UnityEngine.Debug.Log("Zeit für alle Rekursionen: " + check2.ElapsedMilliseconds + " ms");
         UnityEngine.Debug.Log("Rekursive Aufrufe: " + recursion);
+        //UnityEngine.Debug.Log("Operationen: " + operations);
 
         // Prüfen, ob das Puzzle gelöst wurde
         if (solved && !check)
@@ -866,6 +889,7 @@ public class GridController : MonoBehaviour
             {
                 for (int z = 0; z < block.GetLength(2); z++)
                 {
+
                     if (block[y, x, z] == 1)
                     {
                         int gridX = startX + x;
@@ -1242,15 +1266,7 @@ public class GridController : MonoBehaviour
         {
             UnityEngine.Debug.LogError("Ung�ltiger Index: " + index);
         }
-
-        
-
-        
     }
-
-
-
-
 
     private void SnapToGrid(GameObject target)
     {
